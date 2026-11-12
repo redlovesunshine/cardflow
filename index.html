@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f8f3ee">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>記帳小精靈｜CardFlow 奶油手帳 V10</title>
+<title>記帳小精靈｜CardFlow 奶油手帳 V13</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
 :root{
@@ -482,6 +482,12 @@ label{color:#79645e}
 }
 
 
+/* V12: Consolidated Fubon statement, with a visible card-by-card breakdown */
+.billing-breakdown{margin-top:12px;padding:10px 12px;border-radius:14px;background:#f8f3ee;border:1px solid #e9e0d8}
+.billing-breakdown>div{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px}
+.billing-breakdown>div span{min-width:0;overflow-wrap:anywhere;color:#876e65}
+.billing-breakdown>div b{white-space:nowrap;color:#655148;font-size:13px}
+.billing-breakdown small{display:block;color:#97857a;margin-top:6px;line-height:1.6;font-size:11px}
 /* V9: statement reconciliation, thumb-friendly bill management */
 .bill-state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .bill-state-card{background:#fffcf9;border:1px solid #e9ddd7;border-radius:18px;padding:14px 11px;min-width:0}
@@ -533,6 +539,39 @@ label{color:#79645e}
 .batch-month-guide input{height:48px;min-height:48px;font-size:16px;max-width:100%;background:#fff}
 .batch-month-guide .summary{margin-top:7px}
 #batch-result{scroll-margin-top:75px;scroll-margin-bottom:100px}
+
+/* V11 — narrow iPhone layout and persistent import confirmation */
+#batch-panel,#batch-result,.batch-item,.batch-fields,.manual-main-grid,.batch-month-guide{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+#batch-reference-month,#batch-statement-month{width:100%;max-width:100%;min-width:0;font-size:16px;height:51px;display:block}
+#newdate,#edit-date,#edit-due,#review-date,#batch-due-date,.batch-item input[type="date"]{
+  display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+  font-size:16px!important;min-height:50px;-webkit-appearance:none;appearance:none;
+}
+input[type="date"]::-webkit-date-and-time-value{text-align:left;min-width:0}
+.manual-main-grid>div,.batch-fields>div,#edit-form .grid>div{min-width:0;max-width:100%;width:100%}
+#batch-commit-feedback{margin-top:12px;scroll-margin-bottom:135px}
+#batch-commit-feedback .batch-confirm{border:1px solid #e0cfc2;border-radius:17px;background:#fcf6ee;padding:13px;font-size:14px;line-height:1.8;color:#675149}
+#batch-commit-feedback .batch-confirm h3{font-size:16px;margin:0 0 7px}
+#batch-commit-feedback button{min-height:50px;flex:1 1 120px}
+#batch-commit-feedback .actions{margin:13px 0 0}
+.batch-inline-warning{border:1px solid #e9d9c3;background:#fff8e9;border-radius:16px;padding:13px;margin:12px 0;line-height:1.7;font-size:13px}
+.batch-recovery{margin:13px 0;border:1px dashed #d8b7ae;background:#fffbf6;padding:12px;border-radius:16px}
+.batch-recovery .recovery-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+.batch-recovery button{width:100%;margin-top:11px}
+@media(max-width:640px){
+  .manual-main-grid,#edit-form>.grid,#edit-billing-fields .grid,.batch-item .batch-fields{grid-template-columns:minmax(0,1fr)!important;gap:6px}
+  .batch-config-grid,.batch-page-filter{grid-template-columns:minmax(0,1fr)}
+  #batch-reference-month,#batch-statement-month{font-size:16px}
+}
+/* V11: compact editable fields for narrow iPhone screens */
+@media(max-width:560px){
+  #newdate,#edit-date,.batch-fields input[type="date"],#batch-due-date{
+    display:block;width:100%;min-width:0;max-width:100%;height:52px;min-height:52px;
+    padding:9px 12px;box-sizing:border-box;font-size:16px!important;line-height:1.2;
+  }
+  .batch-item .batch-fields{grid-template-columns:minmax(0,1fr)!important}
+  .batch-config-grid>*{min-width:0}
+}
 </style>
 </head>
 <body>
@@ -638,14 +677,15 @@ label{color:#79645e}
 
     <details class="panel batch-panel" id="batch-panel">
       <summary class="batch-toggle"><span>▤ 截圖帳單批次匯入</span><span class="batch-open-hint">點我展開 ⌄</span></summary>
+      <p class="summary">支援台新 Richart、聯邦 NTD 欄位明細，以及富邦「11/10 店名／$299」未出帳截圖；富邦多卡合併帳單可先選「富邦合併明細・待分卡」。</p>
       <p class="summary">在 iPhone「捷徑」中<strong>一次選取多張截圖</strong>，逐張從影像擷取文字並合併、複製到剪貼簿，再回到 CardFlow 一鍵讀取、預覽勾選。照片不會上傳到網站或 GitHub。</p>
       <div class="notice">🍪 每次建議先處理一張卡。只取「消費日・商家・台幣金額」；交易總計、可用額度、繳款資訊及退款不會自動列入。OCR 排版不清楚時，會留待人工確認。</div>
       <div class="batch-config-grid">
         <div><label for="batch-default-card">💳 這次是哪張卡？</label><select id="batch-default-card"><option value="">請選擇一張信用卡</option></select></div>
         <div><label for="batch-kind">📌 截圖屬於哪種明細？</label><select id="batch-kind" onchange="updateBatchKindUI()"><option value="unbilled">未出帳明細</option><option value="billed">已出帳帳單（待繳）</option></select></div>
       </div>
-      <div class="batch-month-guide"><label for="batch-reference-month">🗓️ 截圖的年月（請確認）</label><input id="batch-reference-month" type="month"><div class="summary">銀行畫面只有「09日、07日」時會使用這個年月；若截圖內有「11月份／10月份」，以畫面上的月份為準。</div></div>
-      <div id="batch-billed-options" class="batch-subgroup hidden"><label for="batch-statement-month">帳單月份（核對銀行帳單）</label><input id="batch-statement-month" type="month"><label for="batch-due-date">本期繳款截止日（選填）</label><input id="batch-due-date" type="date"></div>
+      <div class="batch-month-guide"><label for="batch-reference-month">🗓️ 截圖的年月（請確認）</label><select id="batch-reference-month" class="month-select" aria-label="截圖的年月"></select><div class="summary">銀行畫面只有「09日、07日」時會使用這個年月；若截圖內有「11月份／10月份」，以畫面上的月份為準。</div></div>
+      <div id="batch-billed-options" class="batch-subgroup hidden"><label for="batch-statement-month">帳單月份（核對銀行帳單）</label><select id="batch-statement-month" class="month-select" aria-label="帳單月份"></select><label for="batch-due-date">本期繳款截止日（選填）</label><input id="batch-due-date" type="date"></div>
       <p class="batch-kind-help" id="batch-kind-help">未出帳截圖：匯入後標記「未出帳」；沒有銀行證據的舊紀錄不會自動變成未出帳。</p>
       <label for="batch-ocr-text">📝 截圖辨識後的文字（可一次貼多張）</label>
       <textarea id="batch-ocr-text" rows="7" placeholder="例如：
@@ -663,7 +703,7 @@ label{color:#79645e}
 
     <div class="panel">
       <h2>手動補登</h2>
-      <div class="grid">
+      <div class="grid manual-main-grid">
         <div>
           <label>消費日期</label>
           <input id="newdate" type="date">
@@ -694,7 +734,7 @@ label{color:#79645e}
 
   <section id="bills" class="hidden">
     <div class="panel"><div class="bill-status-head"><h2>▤ 帳單與未出帳管理</h2><span class="chip">銀行截圖核對</span></div>
-      <div class="statement-note">依你上傳截圖辨識出的文字或手動確認紀錄整理。只有銀行資料核對後，才標記未出帳、已出帳或已繳款；無法直接連線查詢銀行卡費。</div>
+      <div class="statement-note">依截圖辨識或手動確認紀錄整理。<strong>富邦多張卡在這裡合併顯示，但消費明細仍保留原卡片。</strong>金額是所有已儲存月份的狀態合計，不等於銀行本期正式應繳款；仍需對照銀行帳單。</div>
       <div id="bills-states" class="bill-state-grid" style="margin-top:12px"></div>
       <h2 style="margin-top:20px">各張信用卡</h2><div id="bills-card-summaries"></div>
     </div>
@@ -710,6 +750,10 @@ label{color:#79645e}
       <p class="summary">結帳日和繳款日請依實際銀行帳單填寫。總覽以消費日月份統計；「帳單」頁則依核對後的未出帳、已出帳待繳、已繳款狀態整理，不會自行判定銀行正式帳單。</p>
       <div id="cardsettings"></div>
       <button onclick="saveSettings()" style="margin-top:12px">💾 儲存卡片設定</button>
+      <div class="batch-special" style="margin-top:18px"><strong>＋ 新增其他信用卡</strong><div class="summary">截圖裡若有尚未列出的信用卡，可自行新增。只需卡片名稱與末四碼，不需要完整卡號。</div>
+        <div class="batch-config-grid"><div><label for="extra-card-name">卡片名稱</label><input id="extra-card-name" placeholder="例如：我的另一張信用卡" maxlength="70"></div><div><label for="extra-card-last4">末四碼（選填）</label><input id="extra-card-last4" inputmode="numeric" maxlength="4" placeholder="例如 4304"></div></div>
+        <button type="button" class="secondary" onclick="addCustomCard()">新增卡片</button>
+      </div>
     </div>
 
     <div class="panel">
@@ -734,7 +778,7 @@ label{color:#79645e}
     </div>
   </section>
 
-  <p class="footer-note">made with ♡ · 記帳小精靈<br>本機隱私版 V10 · 台新 Richart 多圖核對 · 請記得備份資料</p>
+  <p class="footer-note">made with ♡ · 記帳小精靈<br>本機隱私版 V13 · 富邦合併／中信／台新／聯邦截圖辨識 · 請記得備份資料</p>
   <nav class="bottom-nav" aria-label="手機快速導覽">
     <button type="button" data-bottom="home" onclick="switchTab('home')"><span class="nav-symbol">🏠</span><span>總覽</span></button>
     <button type="button" data-bottom="entries" onclick="switchTab('entries')"><span class="nav-symbol">🧾</span><span>明細</span></button>
@@ -765,8 +809,9 @@ const KEY='cardflow_mvp_v1', CARDKEY='cardflow_cards_v1';
 const initialCards=[
   {id:'fubon',name:'富邦 J 卡',last4:'',closing:'',due:''},
   {id:'fubon-costco',name:'富邦 Costco 悠遊卡',last4:'',closing:'',due:''},
+  {id:'fubon-unassigned',name:'富邦合併明細・待分卡',last4:'',closing:'',due:''},
   {id:'ctbc',name:'中信英雄聯盟卡',last4:'',closing:'',due:''},
-  {id:'taishin',name:'台新 GoGo 卡',last4:'',closing:'',due:''},
+  {id:'taishin',name:'台新 GoGo／Richart 卡',last4:'',closing:'',due:''},
   {id:'union',name:'聯邦幸福 M 卡',last4:'',closing:'',due:''}
 ];
 let items=JSON.parse(localStorage.getItem(KEY)||'[]');
@@ -789,7 +834,7 @@ const today=new Date().toLocaleDateString('en-CA');
 const curr=today.slice(0,7);
 function initializeMonthOptions(){
   const origin=new Date();
-  for(const id of ['month','listmonth']){
+  for(const id of ['month','listmonth','batch-reference-month','batch-statement-month']){
     const el=document.getElementById(id);
     for(let offset=-24;offset<=12;offset++){
       const d=new Date(origin.getFullYear(),origin.getMonth()+offset,1);
@@ -815,11 +860,36 @@ document.getElementById('tabs').onclick=e=>{if(e.target.dataset.tab)switchTab(e.
 ['month','listmonth','search'].forEach(id=>document.getElementById(id).addEventListener('input',render));
 function html(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function cardName(id){return cards.find(c=>c.id===id)?.name||'待確認卡片'}
+// A consolidated Fubon bill can include transactions made on several cards.
+// Keep the original card on each transaction; only the billing summary is grouped.
+function billingGroupId(id){
+  const c=cards.find(x=>x.id===id);
+  if(['fubon','fubon-costco','fubon-unassigned'].includes(id)||/富邦|台北富邦/.test(c?.name||''))return 'fubon';
+  return id||'unassigned';
+}
+function canMatchStatementCard(a,b){
+  return a===b||(billingGroupId(a)==='fubon'&&billingGroupId(b)==='fubon'&&(a==='fubon-unassigned'||b==='fubon-unassigned'));
+}
+function fubonHoldingMatch(candidate){
+  if(!candidate.card||candidate.card==='fubon-unassigned'||billingGroupId(candidate.card)!=='fubon')return null;
+  const matches=items.filter(x=>x.card==='fubon-unassigned'&&x.date===candidate.date&&Number(x.amount)===Number(candidate.amount)&&normalizedMerchant(x.merchant)===normalizedMerchant(candidate.merchant));
+  return matches.length===1?matches[0]:null;
+}
+function resolveFubonHolding(candidate){
+  const existing=fubonHoldingMatch(candidate);
+  if(!existing)return false;
+  existing.card=candidate.card;
+  existing.merchant=candidate.merchant;
+  existing.category=candidate.category||existing.category;
+  save();
+  return true;
+}
 function monthEntries(id){return items.filter(x=>x.date.startsWith(id))}
 function cardTheme(i){
   return [
     ['💙 富邦 J 卡','linear-gradient(135deg,#edf6ff,#f7fbff)','linear-gradient(90deg,#7eb8ff,#4b84dd)'],
     ['🧡 富邦 Costco 悠遊卡','linear-gradient(135deg,#fff3df,#fffaf0)','linear-gradient(90deg,#ffc476,#f49c6b)'],
+    ['✧ 富邦合併明細・待分卡','linear-gradient(135deg,#f9f6ef,#fffef8)','linear-gradient(90deg,#d5bcb2,#bea9ad)'],
     ['💜 中信英雄聯盟卡','linear-gradient(135deg,#f3efff,#fbf9ff)','linear-gradient(90deg,#c19dff,#8d73e6)'],
     ['🩷 台新 GoGo 卡','linear-gradient(135deg,#fff0f6,#fff9fc)','linear-gradient(90deg,#ff9ec0,#f5749d)'],
     ['💚 聯邦幸福 M 卡','linear-gradient(135deg,#effcf5,#fbfffd)','linear-gradient(90deg,#8ed9b8,#4fb995)']
@@ -842,9 +912,23 @@ function renderBills(){
   const previous=selection.value;
   selection.innerHTML='<option value="">全部信用卡</option>'+cards.map(c=>`<option value="${html(c.id)}">${html(c.name)}</option>`).join('');
   if(cards.some(c=>c.id===previous))selection.value=previous;
-  document.getElementById('bills-card-summaries').innerHTML=cards.map(c=>{
-    const e=items.filter(x=>x.card===c.id),m=metricCards(e);
-    return `<div class="bill-account"><div class="bill-account-head"><strong>${html(c.name)}</strong><span class="pill">${e.length} 筆</span></div><div class="bill-account-metrics"><div><span>未出帳</span><b>${fmt(m.unbilled)}</b></div><div><span>已出帳待繳</span><b>${fmt(m.billed)}</b></div><div><span>已繳款（全部紀錄）</span><b>${fmt(m.paid)}</b></div><div><span>待核對</span><b>${fmt(m.unverified)}</b></div></div></div>`;
+  const byBillingGroup=new Map();
+  for(const c of cards){
+    const group=billingGroupId(c.id);
+    if(!byBillingGroup.has(group))byBillingGroup.set(group,[]);
+    byBillingGroup.get(group).push(c);
+  }
+  document.getElementById('bills-card-summaries').innerHTML=[...byBillingGroup].map(([group,groupCards])=>{
+    const ids=new Set(groupCards.map(c=>c.id));
+    const transactions=items.filter(x=>ids.has(x.card));
+    const sums=metricCards(transactions);
+    const name=group==='fubon'?'富邦信用卡｜合併帳單':groupCards[0].name;
+    const breakdown=group==='fubon'?`<div class="billing-breakdown">${groupCards.map(c=>{
+      const personal=metricCards(items.filter(x=>x.card===c.id));
+      const pending=personal.unbilled+personal.billed+personal.unverified;
+      return `<div><span>${html(c.name)}</span><b>${fmt(pending)}</b></div>`;
+    }).join('')}<small>分卡金額為未出帳、已出帳待繳及待核對合計；不包含已繳款。富邦合併明細只統計一次。</small></div>`:'';
+    return `<div class="bill-account"><div class="bill-account-head"><strong>${html(name)}</strong><span class="pill">${transactions.length} 筆${group==='fubon'?' · '+groupCards.length+' 類':''}</span></div><div class="bill-account-metrics"><div><span>未出帳</span><b>${fmt(sums.unbilled)}</b></div><div><span>已出帳待繳</span><b>${fmt(sums.billed)}</b></div><div><span>已繳款（全部紀錄）</span><b>${fmt(sums.paid)}</b></div><div><span>待核對</span><b>${fmt(sums.unverified)}</b></div></div>${breakdown}</div>`;
   }).join('');
   const wantedCard=selection.value,status=document.getElementById('bills-status-filter').value;
   const filtered=items.filter(x=>(!wantedCard||x.card===wantedCard)&&(status==='all'||statusOf(x)===status)).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,100);
@@ -866,7 +950,7 @@ function render(){
 
   document.getElementById('cards').innerHTML=cards.map((c,i)=>{
     const n=list.filter(x=>x.card===c.id).reduce((s,x)=>s+Number(x.amount),0);
-    const [title,bg,bar]=cardTheme(i);
+    const [themeTitle,bg,bar]=cardTheme(i); const title=i<6?themeTitle:'💳 '+html(c.name);
     return `<div class="cardbox" style="background:${bg}"><div class="cardhead"><div><div class="cardname">${title}</div><div class="small muted">末四碼 ${html(c.last4||'未設定')}</div></div><span class="chip">${n?Math.round(n/(total||1)*100):0}%</span></div><div class="card-amount">${fmt(n)}</div><div class="bar"><i style="background:${bar};width:${total?Math.round(n/total*100):0}%"></i></div><div class="summary" style="margin-top:8px">${c.closing?`結帳日：每月 ${html(c.closing)} 日`:'尚未設定結帳日'}</div></div>`
   }).join('');
 
@@ -876,7 +960,7 @@ function render(){
   document.getElementById('transactions').innerHTML=monthEntries(document.getElementById('listmonth').value).filter(x=>(x.merchant+cardName(x.card)).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date)).map(renderTx).join('')||'<p class="muted">沒有符合條件的資料</p>';
   document.getElementById('newcard').innerHTML='<option value="">待確認卡片</option>'+cards.map(c=>`<option value="${html(c.id)}">${html(c.name)}</option>`).join('');
   document.getElementById('cardsettings').innerHTML=cards.map((c,i)=>{
-    const [title,bg]=cardTheme(i);
+    const [themeTitle,bg]=cardTheme(i); const title=i<6?themeTitle:'💳 '+html(c.name);
     return `<div class="cardbox" style="margin:10px 0;background:${bg}"><div class="cardname" style="margin-bottom:8px">${title}</div><div class="grid"><div><label>卡號末四碼</label><input maxlength="4" inputmode="numeric" id="last${i}" value="${html(c.last4)}" placeholder="僅填 4 碼"></div><div><label>結帳日</label><input type="number" min="1" max="31" id="closing${i}" value="${html(c.closing)}" placeholder="例如 15"></div></div><label>繳款日（每月）</label><input type="number" min="1" max="31" id="due${i}" value="${html(c.due)}" placeholder="例如 3；若跨月請依帳單核對"></div>`
   }).join('');
   const homeMetric=document.getElementById('home-bill-states');if(homeMetric)homeMetric.innerHTML=metricHtml(metricCards());
@@ -930,8 +1014,21 @@ function saveSettings(){
   localStorage.setItem(CARDKEY,JSON.stringify(cards)); render();populateBatchCard(); alert('已儲存設定 ♡');
 }
 
+function addCustomCard(){
+  const name=document.getElementById('extra-card-name').value.trim();
+  const last4=document.getElementById('extra-card-last4').value.trim();
+  if(name.length<2)return toast('請先輸入卡片名稱');
+  if(last4&&!/^\d{4}$/.test(last4))return toast('卡片末四碼請輸入四位數字');
+  if(cards.some(c=>c.name.trim()===name))return toast('已經有同名卡片，請直接設定原卡片');
+  if(last4&&cards.some(c=>c.last4===last4))return toast('這組末四碼已存在，請先確認原卡片');
+  cards.push({id:'custom-'+createId(),name,last4,closing:'',due:''});
+  localStorage.setItem(CARDKEY,JSON.stringify(cards));
+  document.getElementById('extra-card-name').value='';
+  document.getElementById('extra-card-last4').value='';
+  render();populateBatchCard();toast('已新增卡片，現在可以選取匯入');
+}
 function categoryFor(merchant){
-  if(/國外交易服務費|海外交易服務費|國外交易手續費|海外交易手續費|手續費/i.test(merchant))return '手續費';
+  if(/國外交易服務費|海外交易服務費|國外交易手續費|海外交易手續費|結匯手續費|手續費/i.test(merchant))return '手續費';
   if(/全聯|家樂福|好市多|costco|超市/i.test(merchant))return '生活採買';
   if(/uber eats|foodpanda|餐廳|咖啡|麥當勞/i.test(merchant))return '餐飲';
   if(/淘寶|momo|蝦皮|pchome|百貨/i.test(merchant))return '購物';
@@ -1053,6 +1150,7 @@ function confirmNotice(){
   const category=document.getElementById('review-category').value;
   if(!date||!merchant||!Number.isFinite(amount)||amount<=0)return alert('請確認日期、商家和正確金額');
   const result={...candidate,amount,date,merchant,card,category};
+  if(resolveFubonHolding(result)){document.getElementById('parsebox').innerHTML='<div class="notice good" style="margin-top:14px">已配對富邦合併明細，補上正確卡片，不會重複記帳。</div>';candidate=null;document.getElementById('message').value='';return;}
   if(duplicateCandidate(result)&&!confirm('疑似重複記帳，確定仍要新增？'))return;
   items.push({...result,id:createId(),status:'unverified'});
   save();
@@ -1163,9 +1261,9 @@ function clearAll(){if(confirm('將清除所有交易紀錄（無法復原），
 // Nothing is uploaded and nothing is saved until the user confirms the preview.
 const BATCH_SEPARATOR='===CARDFLOW_PAGE===';
 let batchRows=[];
-const batchIgnore=/總額|總計|合計|帳單|繳款|本期應繳|最低應繳|可用額度|信用額度|累計|上期餘額|循環利息|分期餘額|免年費|活動優惠|優惠內容|利率|客服|交易筆數|本期消費|帳戶資訊|回饋總計|點數總計|支付條碼|銀行代碼|結帳日|付款日期|查詢條件|已繳金額|調整金額|待繳金額|卡號|卡片名稱|消費明細|本期未出帳|未出帳總額|交易總額|消費總額|優惠活動/i;
+const batchIgnore=/本期新增|含調整|查證中款項|顯示所有卡|總額|總計|合計|帳單|繳款|本期應繳|最低應繳|可用額度|信用額度|累計|上期餘額|循環利息|分期餘額|免年費|活動優惠|優惠內容|利率|客服|交易筆數|本期消費|帳戶資訊|回饋總計|點數總計|支付條碼|銀行代碼|結帳日|付款日期|查詢條件|已繳金額|調整金額|待繳金額|卡號|卡片名稱|消費明細|本期未出帳|未出帳總額|交易總額|消費總額|優惠活動/i;
 const batchRefund=/退款|退貨|退刷|沖正|取消交易|取消授權|退款入帳|已繳款|已付款|付款入帳|自動扣款|繳款入帳|繳費成功|預借現金/i;
-const batchDateSource='(?:20\\d{2}|1\\d{2})[\\/\\-.年]\\d{1,2}[\\/\\-.月]\\d{1,2}(?:日)?|\\d{1,2}[\\/\\-.月]\\d{1,2}(?:日)?';
+const batchDateSource='(?:20\\d{2}|1\\d{2})\\s*[\\/\\-.年]\\s*\\d{1,2}\\s*[\\/\\-.月]\\s*\\d{1,2}\\s*(?:日|號)?|\\d{1,2}\\s*[\\/\\-.月]\\s*\\d{1,2}\\s*(?:日|號)?';
 const batchStartDate=new RegExp('^\\s*('+batchDateSource+')(?=\\s|$|\\D)');
 function batchToDate(raw,year){
   const fields=String(raw).match(/\d+/g)?.map(Number)||[];
@@ -1180,10 +1278,10 @@ function normalizedMerchant(value){return String(value||'').toUpperCase().replac
 function findBatchMatch(row,previous){
   const key=normalizedMerchant(row.merchant);
   const candidates=items.concat(previous||[]);
-  return candidates.some(x=>x.card===row.card&&x.amount===row.amount&&x.date===row.date&&key&&normalizedMerchant(x.merchant)===key);
+  return candidates.some(x=>canMatchStatementCard(x.card,row.card)&&x.amount===row.amount&&x.date===row.date&&key&&normalizedMerchant(x.merchant)===key);
 }
 function findBatchSameAmount(row){
-  return items.some(x=>x.card===row.card&&x.date===row.date&&Number(x.amount)===Number(row.amount));
+  return items.some(x=>canMatchStatementCard(x.card,row.card)&&x.date===row.date&&Number(x.amount)===Number(row.amount));
 }
 function parseBatchRow(line,year){
   const norm=normalizeOCR(line).replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
@@ -1211,14 +1309,14 @@ function parseBatchRow(line,year){
 // Richart and other bank apps show '11月份' and transaction dates like '07日'.
 // Read one card-like record at a time rather than requiring all fields on one line.
 function batchMonthHeading(line){
-  const m=String(line).trim().match(/^(?:(20\d{2}|1\d{2})\s*[年\/\-.]\s*)?(0?[1-9]|1[0-2])\s*月份?\s*$/);
+  const m=String(line).trim().match(/^(?:(?:民國\s*)?(20\d{2}|1\d{2})\s*[年\/\-.]\s*)?(0?[1-9]|1[0-2])\s*月份?(?:交易|消費|明細)?\s*$/);
   if(!m)return null;
   let year=m[1]?Number(m[1]):null;
   if(year>=100&&year<200)year+=1911;
   return {year,month:Number(m[2])};
 }
 function batchDateHeader(line,currentYear,currentMonth){
-  const raw=String(line||'').trim().replace(/^[•·●]\s*/, '');
+  const raw=String(line||'').trim().replace(/^[•·●]\s*/, '').replace(/^(?:交易日期|消費日期|交易日|消費日|入帳日|日期)\s*[:：]?\s*/, '');
   const full=raw.match(batchStartDate);
   if(full){
     const date=batchToDate(full[1],currentYear);
@@ -1226,7 +1324,7 @@ function batchDateHeader(line,currentYear,currentMonth){
     return {date,after:raw.slice(full[0].length).trim(),uncertain:false};
   }
   // Screenshot OCR sometimes reads 日 as 曰 or B (e.g. 05B).
-  const day=raw.match(/^([0-2]?\d|3[01])\s*(日|曰|B)(.*)$/i);
+  const day=raw.match(/^([0-2]?\d|3[01])\s*(日|曰|號|B)(.*)$/i);
   if(!day)return null;
   const d=Number(day[1]);
   if(d<1||d>31)return null;
@@ -1235,6 +1333,66 @@ function batchDateHeader(line,currentYear,currentMonth){
   return {date,after:day[3].trim(),uncertain:day[2]!=='日'};
 }
 function parseBatchCardBlock(block){
+  // Bank screenshots can put the posted amount BEFORE the merchant:
+  // 2026/11/06  NTD 198
+  // 卡號 4304  SOOPSOKMAIJE...
+  // This must not interpret the card's last four digits (4304) as the price.
+  const allText=[block.after,...block.parts].filter(Boolean);
+  // CTBC League of Legends card OCR commonly splits each transaction into:
+  // 11/03 / EXIMBAY*Tmoney SEOUL KR / 1094 英雄聯盟卡 / 514
+  // A screenshot may also put a capture timestamp before a standalone fee
+  // amount. Ignore that timestamp and the statement TOTAL, and extract ONLY
+  // a transaction-level amount from the date-scoped card block.
+  const ctbcCardLine=allText.map(line=>line.match(/(?:^|\s)(\d{4})\s*英雄聯盟卡(?:\s*[（(]\d+[)）])?/i)).find(Boolean);
+  if(ctbcCardLine){
+    const ctbcLast4=ctbcCardLine[1];
+    const isUiClock=line=>/^(?:[\W_]*[\p{L}\p{Script=Han}]{0,10}\s*[:：]\s*)?20\d{2}\s*[\/.-]\s*\d{1,2}\s*[\/.-]\s*\d{1,2}(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?/u.test(line)
+      || (/20\d{2}[\/.-]\d{1,2}[\/.-]\d{1,2}\s+\d{1,2}:\d{2}/.test(line)&& !/^\s*(?:NTD|NT\$|TWD|[＄$])/i.test(line));
+    const amountLine=/^\s*(?:(?:NTD|TWD|NT\s*\$|[＄$])\s*)?([1-9]\d{0,2}(?:,\d{3})+|[1-9]\d{0,6})(?:\.\d{1,2})?\s*(?:元)?\s*[>›くvV]?\s*$/i;
+    const possibleAmounts=allText.filter(line=>!isUiClock(line)).map(line=>line.match(amountLine)).filter(Boolean);
+    const merchantLines=allText.filter(line=>
+      !/\d{4}\s*英雄聯盟卡/i.test(line) && !amountLine.test(line) && !isUiClock(line)
+      && !/^[>›<く•●·口日\s]+$/.test(line) && !batchIgnore.test(line)
+      && !/^[*#\W]*\d{1,2}:\d{2}/.test(line)
+      && !/^(?:單筆分期|申請單筆分期|[0-9０-９]{1,2}[.．、]\s*(?:未出帳|＜?未出帳|本期|帳務))/.test(line));
+    const ctbcMerchant=merchantLines.join(' ').replace(/[>›く•●·]/g,' ').replace(/\s+/g,' ').trim();
+    if(possibleAmounts.length===1 && ctbcMerchant.length>=2 && /[\p{L}\p{Script=Han}]/u.test(ctbcMerchant) && !batchRefund.test(ctbcMerchant)){
+      const amount=Number(possibleAmounts[0][1].replace(/,/g,''));
+      if(Number.isFinite(amount)&&amount>0){
+        const fee=/國外交易手續費|海外交易手續費|國外交易服務費|結匯手續費/i.test(ctbcMerchant);
+        return {date:block.date,amount,merchant:ctbcMerchant.slice(0,100),category:fee?'手續費':categoryFor(ctbcMerchant),source:'batch-ocr',negative:false,uncertain:!!block.uncertain,detectedLast4:ctbcLast4};
+      }
+    }
+  }
+  const bankMoneyRe=/(?:^|\s)(?:NTD|TWD|NT\s*\$)\s*\$?\s*([+-]?(?:\d{1,3}(?:,\d{3})+|\d{1,8})(?:\.\d{1,2})?)(?=\s|$|[>›])/i;
+  const bankValue=allText.map((line,i)=>({line,i,match:line.match(bankMoneyRe)})).find(x=>x.match);
+  const cardNumberMatch=allText.join(' ').match(/卡號\s*[:：]?\s*(\d{4})/);
+  if(bankValue && (cardNumberMatch || /\b(?:NTD|TWD)\b/.test(bankValue.line))){
+    const amount=Number(bankValue.match[1].replace(/,/g,''));
+    const candidates=allText.map((part,i)=>i===bankValue.i?part.replace(bankValue.match[0],' ').trim():part)
+      .map(x=>x.replace(/卡號\s*[:：]?\s*\d{4}/g,' ').replace(/^[>›•●·\s$＄:：-]+|[>›•●·\s$＄:：-]+$/g,'').trim())
+      .filter(x=>x && /[\p{L}\p{Script=Han}]/u.test(x) && !/^(?:NTD|TWD|NT\$|顯示所有卡|消費日|查證中款項|信用卡)$/.test(x) && !batchIgnore.test(x));
+    const merchant=candidates.join(' ').replace(/\s+/g,' ').trim();
+    if(amount>0 && Number.isFinite(amount) && merchant.length>=2 && !batchRefund.test(merchant)){
+      const fee=/國外交易|結匯手續|海外交易/i.test(merchant);
+      return {date:block.date,amount,merchant:merchant.slice(0,100),category:fee?'手續費':categoryFor(merchant),source:'batch-ocr',negative:false,uncertain:!!block.uncertain,detectedLast4:cardNumberMatch?.[1]||''};
+    }
+  }
+  // Fubon app: 11/10 好市多北投店 / $299v, or a shop name wrapped
+  // across several OCR lines, without a per-card last four digits.
+  // Restrict to a *single* currency-marked number and strip arrow OCR artifacts.
+  if(!cardNumberMatch){
+    const joinedParts=[block.after,...block.parts].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+    const fubonMoney=[...joinedParts.matchAll(/(?:NT\s*\$|NTD\s*\$?|TWD\s*\$?|[＄$])\s*([+-]?(?:\d{1,3}(?:,\d{3})+|\d{1,8}))(?:\s*[vV∨⌄˅~～>›])?(?=\s|$|[vV∨⌄˅~～>›])/gi)];
+    if(fubonMoney.length===1){
+      const hit=fubonMoney[0];
+      const amount=Number(hit[1].replace(/,/g,''));
+      const merchant=joinedParts.slice(0,hit.index).replace(/[>›<•●·]/g,' ').replace(/\s+/g,' ').trim();
+      if(amount>0&&merchant.length>=2&&/[\p{L}\p{Script=Han}]/u.test(merchant)&&!batchIgnore.test(merchant)&&!batchRefund.test(merchant)){
+        return {date:block.date,amount,merchant:merchant.slice(0,100),category:categoryFor(merchant),source:'batch-ocr',negative:false,uncertain:!!block.uncertain,detectedLast4:''};
+      }
+    }
+  }
   // First try the existing YYYY/MM/DD or MM/DD single-line parser, including
   // simple statements that do not use a bank-app card layout.
   const joined=[block.dateLine,...block.parts].join(' ').replace(/\s+/g,' ').trim();
@@ -1260,15 +1418,24 @@ function parseBatchCardBlock(block){
     merchantText=content.slice(0,trailing.index);
     block.uncertain=true;
   }
+  // Some banks (including Union variants) place the NT$ amount before the
+  // merchant. If nothing merchant-like precedes the amount, read the tail.
+  const moneyTail=moneyHits.length?content.slice(moneyHits[moneyHits.length-1].index+moneyHits[moneyHits.length-1][0].length).trim():'';
+  const beforeClean=merchantText.replace(/(?:交易金額|扣款金額|台幣金額|新臺幣|帳款金額|金額)\s*[:：]?/g,' ').trim();
+  if((!/[^\d\s$NTDW元:：•·>›]/i.test(beforeClean)||beforeClean.length<2) && /[\p{L}\p{Script=Han}]/u.test(moneyTail)){
+    merchantText=moneyTail;
+    block.uncertain=true;
+  }
   // Strip OCR artifacts from image icons and chevrons, not merchant words.
   let merchant=merchantText
     .replace(/(?:^|\s)(?:日|口|P|\$|[>›<•●·])(?=\s|$)/gi,' ')
     .replace(/[>›<•●·\u25a1\u25a0\u25cf]/g,' ')
     .replace(/\s+/g,' ').trim()
+    .replace(/^(?:商店名稱|店家名稱|特約商店|特約店|交易商店|商家|消費店家|消費商店)\s*[:：]?\s*/,'')
     .replace(/^[\s$＄:：\-–—]+|[\s$＄:：\-–—]+$/g,'');
   if(!Number.isFinite(amount)||amount<=0||!merchant||merchant.length<2||!/[\p{L}\p{Script=Han}]/u.test(merchant))return null;
   if(batchIgnore.test(merchant)||batchRefund.test(merchant))return null;
-  const isFee=/國外交易服務費|海外交易服務費|國外交易手續費|海外交易手續費/i.test(merchant);
+  const isFee=/國外交易服務費|海外交易服務費|國外交易手續費|海外交易手續費|結匯手續費/i.test(merchant);
   const result={date:block.date,amount:Math.abs(amount),merchant:merchant.slice(0,100),category:isFee?'手續費':categoryFor(merchant),source:'batch-ocr',negative:amount<0,ambiguous:!!block.uncertain};
   return result;
 }
@@ -1282,6 +1449,7 @@ function extractBatchRows(text,referenceMonth){
     let activeYear=fallbackYear,activeMonth=fallbackM;
     const lines=page.split('\n').map(x=>x.trim()).filter(Boolean);
     let block=null;
+    let inFooter=false;
     const finish=()=>{
       if(!block)return;
       const parsed=parseBatchCardBlock(block);
@@ -1290,6 +1458,8 @@ function extractBatchRows(text,referenceMonth){
       block=null;
     };
     for(const line of lines){
+      if(/^(?:注意事項|注意事頂|注意事顼|申請單筆分期|單筆分期|申請卡友信貸|刷卡疑問|[0-9０-９]{1,2}[.．、]\s*(?:未出帳|＜?未出帳|本期|帳務))/.test(line)){finish();inFooter=true;continue;}
+      if(inFooter)continue;
       const heading=batchMonthHeading(line);
       if(heading){
         finish();
@@ -1322,6 +1492,7 @@ function populateBatchCard(){
 }
 populateBatchCard();
 function updateBatchKindUI(){
+  if(batchRows.length){batchRows=[];document.getElementById('batch-result').innerHTML='<div class="summary">已切換明細類型，請重新辨識並預覽。</div>';}
   const type=document.getElementById('batch-kind').value;
   document.getElementById('batch-billed-options').classList.toggle('hidden',type!=='billed');
   document.getElementById('batch-kind-help').textContent=type==='billed'
@@ -1331,7 +1502,7 @@ function updateBatchKindUI(){
 document.getElementById('batch-statement-month').value=curr;
 document.getElementById('batch-reference-month').value=curr;
 const batchCardSelection=document.getElementById('batch-default-card');
-batchCardSelection.addEventListener('change',()=>{try{localStorage.setItem('cardflow_batch_last_card',batchCardSelection.value)}catch(e){}});
+batchCardSelection.addEventListener('change',()=>{try{localStorage.setItem('cardflow_batch_last_card',batchCardSelection.value)}catch(e){} batchRows=[];document.getElementById('batch-result').innerHTML='<div class="summary">已切換信用卡，請重新按「辨識並預覽」。</div>';});
 try{const lastBatchCard=localStorage.getItem('cardflow_batch_last_card');if(lastBatchCard&&cards.some(c=>c.id===lastBatchCard))batchCardSelection.value=lastBatchCard}catch(e){}
 updateBatchKindUI();
 async function readBatchClipboard(autoPreview=false){
@@ -1340,7 +1511,7 @@ async function readBatchClipboard(autoPreview=false){
     const value=await navigator.clipboard.readText();
     if(!value.trim())throw Error('剪貼簿沒有文字');
     document.getElementById('batch-ocr-text').value=value;
-    if(autoPreview&&document.getElementById('batch-default-card').value)previewBatch();
+    if(autoPreview)previewBatch();
     else toast('📋 已取得文字，請選卡片後點「辨識並預覽」');
   }catch(e){toast('無法自動讀取；請長按欄位選「貼上」')}
 }
@@ -1351,98 +1522,201 @@ function fillBatchDemo(){
 }
 function previewBatch(){
   const text=document.getElementById('batch-ocr-text').value.trim();
-  const card=document.getElementById('batch-default-card').value;
+  let card=document.getElementById('batch-default-card').value;
   const type=document.getElementById('batch-kind').value;
   const warn=message=>{const el=document.getElementById('batch-result');el.innerHTML='<div class="notice" style="margin-top:13px">'+html(message)+'</div>';el.scrollIntoView({block:'nearest'});toast(message)};
-  if(!card)return warn('請先選擇這次要記的信用卡。');
   if(!text)return warn('尚未收到捷徑文字：請點「從捷徑貼上並預覽」，或長按文字框貼上。');
+  if(!card){
+    const codes=[...new Set([
+      ...[...text.matchAll(/卡號\s*[:：]?\s*(\d{4})/g)].map(x=>x[1]),
+      ...[...text.matchAll(/(\d{4})\s*英雄聯盟卡/g)].map(x=>x[1])
+    ])];
+    let possible=cards.filter(c=>c.last4&&codes.includes(c.last4));
+    // CTBC only: if the card's last4 was never configured, a distinctive
+    // card name can still select it without inventing an account number.
+    if(!possible.length && /(?:\d{4}\s*)?英雄聯盟卡/.test(text))possible=cards.filter(c=>/英雄聯盟卡/.test(c.name));
+    if(possible.length===1){card=possible[0].id;document.getElementById('batch-default-card').value=card;}
+    else return warn(codes.length?'截圖中偵測到卡號末四碼 '+codes.join('、')+'。請先選取對應信用卡；若沒有這張卡，可到「設定 → 新增其他信用卡」。':'請先選擇這次要記的信用卡。');
+  }
   if(text.length>100000)return warn('文字太多，建議每次分批匯入 5～10 張截圖。');
   if(type==='billed'&&!document.getElementById('batch-statement-month').value)return warn('請填入銀行帳單月份。');
   const parsed=extractBatchRows(text,document.getElementById('batch-reference-month').value||curr);
-  const seen=[];
+  const fubonNoCard=billingGroupId(card)==='fubon'&&parsed.rows.length>0&&!parsed.rows.some(x=>x.detectedLast4);
+  const fubonChosenSpecific=fubonNoCard&&card!=='fubon-unassigned';
+  // Identical same-day fees are sometimes real separate charges. Track the
+  // occurrence number WITHIN EACH SCREENSHOT rather than collapsing them.
+  const occurrencesByPage=new Map();
+  const firstPageCountByKey=new Map();
+  const chosenCard=cards.find(c=>c.id===card);
+  const detectedCodes=[...new Set(parsed.rows.map(r=>r.detectedLast4).filter(Boolean))];
+  const mismatch=detectedCodes.filter(code=>chosenCard?.last4&&chosenCard.last4!==code);
   batchRows=parsed.rows.slice(0,150).map((x,i)=>{
     const row={...x,card,uid:i};
-    const same=items.find(it=>it.card===card&&it.date===row.date&&Number(it.amount)===row.amount&&normalizedMerchant(it.merchant)===normalizedMerchant(row.merchant));
-    const inBatch=findBatchMatch(row,seen);
+    const key=[row.date,row.amount,normalizedMerchant(row.merchant)].join('|');
+    const pageKey=row.page+'|'+key;
+    const occur=(occurrencesByPage.get(pageKey)||0)+1;
+    occurrencesByPage.set(pageKey,occur);
+    const seenEarlier=firstPageCountByKey.get(key)||0;
+    row.internalDuplicate=row.page>1&&occur<=seenEarlier;
+    firstPageCountByKey.set(key,Math.max(seenEarlier,occur));
+    const matches=items.filter(it=>canMatchStatementCard(it.card,card)&&it.date===row.date&&Number(it.amount)===row.amount&&normalizedMerchant(it.merchant)===normalizedMerchant(row.merchant));
+    // Multiple identical same-day fees may be REAL distinct charges. Preserve
+    // occurrence order for an individual card; never silently merge across
+    // several different Fubon cards.
+    const crossCardMatches=matches.some(m=>m.card!==card);
+    const rowGroupAmbiguous=crossCardMatches&&matches.length>1;
+    const same=rowGroupAmbiguous?undefined:matches[occur-1];
+    row.groupAmbiguous=rowGroupAmbiguous;
     row.existingId=same?.id||'';
     row.existingStatus=same?statusOf(same):'';
-    row.internalDuplicate=!!inBatch&&!row.existingId;
     row.sameAmount=!same&&!row.internalDuplicate&&findBatchSameAmount(row);
+    if(row.groupAmbiguous)row.uncertain=true;
+    row.repeatedOnPage=parsed.rows.some((other,j)=>j!==i&&other.page===row.page&&other.date===row.date&&other.amount===row.amount&&normalizedMerchant(other.merchant)===normalizedMerchant(row.merchant));
+    row.last4Mismatch=mismatch.length>0;
+    row.fubonCardUnknown=fubonChosenSpecific;
+    if(row.fubonCardUnknown)row.uncertain=true;
     const changeNeeded=!!same&&((type==='billed'&&!['billed','paid'].includes(row.existingStatus))||(type==='unbilled'&&row.existingStatus==='unverified'));
     row.changeNeeded=changeNeeded;
     row.duplicate=!!same&&!changeNeeded||row.internalDuplicate;
-    row.checked=(!row.duplicate&&!row.sameAmount&&!row.uncertain&&!row.negative);
-    seen.push(row);
+    row.checked=(!row.duplicate&&!row.sameAmount&&!row.uncertain&&!row.negative&&!row.repeatedOnPage&&!row.last4Mismatch);
     return row;
   });
   renderBatchPreview(parsed.skipped,parsed.pages,parsed.rows.length);
+  if(fubonChosenSpecific){
+    const msg=document.createElement('div');msg.className='batch-inline-warning';
+    msg.textContent='這份截圖沒有每筆卡號。富邦卡費雖然合併計算，消費仍可能來自不同卡。建議上方改選「富邦合併明細・待分卡」再辨識，避免全部誤記到一張卡。';
+    document.getElementById('batch-result').prepend(msg);
+  }
+}
+function batchRecoveryForm(){
+  const month=document.getElementById('batch-reference-month').value||curr;
+  return `<details class="batch-recovery"><summary>＋ OCR 沒抓到？手動加入一筆到這次預覽</summary>
+    <div class="recovery-grid"><label for="batch-recovery-date">消費日期</label><input type="date" id="batch-recovery-date" value="${html(month+'-01')}">
+    <label for="batch-recovery-merchant">商家名稱</label><input id="batch-recovery-merchant" placeholder="例如：全聯福利中心">
+    <label for="batch-recovery-amount">金額（NT$）</label><input id="batch-recovery-amount" type="number" inputmode="numeric" min="1" placeholder="例如：299"></div>
+    <button type="button" class="secondary" onclick="addBatchRecoveryRow()">加入待確認預覽</button>
+    <p class="summary">此功能不會立即存入帳本，仍需勾選並確認匯入。</p>
+  </details>`;
+}
+function addBatchRecoveryRow(){
+  const card=document.getElementById('batch-default-card').value;
+  if(!card){batchShowMessage('請先選擇信用卡。');return}
+  const date=document.getElementById('batch-recovery-date')?.value||'';
+  const merchant=document.getElementById('batch-recovery-merchant')?.value.trim()||'';
+  const amount=Number(document.getElementById('batch-recovery-amount')?.value||0);
+  if(!date||merchant.length<2||!Number.isFinite(amount)||amount<=0){batchShowMessage('請填寫日期、商家及正確的正數金額。');return}
+  const duplicate=items.some(x=>x.card===card&&x.date===date&&Number(x.amount)===amount&&normalizedMerchant(x.merchant)===normalizedMerchant(merchant)) || batchRows.some(x=>x.date===date&&x.amount===amount&&normalizedMerchant(x.merchant)===normalizedMerchant(merchant));
+  batchRows.push({card,date,merchant,amount,category:categoryFor(merchant),page:'手動',source:'manual',uid:batchRows.length,duplicate,uncertain:false,checked:!duplicate,changeNeeded:false,negative:false,sameAmount:!duplicate&&findBatchSameAmount({card,date,amount})});
+  renderBatchPreview(0,1,batchRows.length);
+  batchShowMessage(duplicate?'已找到相同交易，暫不預選；請核對。':'已加入預覽，請確認後再正式匯入。',false);
+}
+function batchShowMessage(message,warning=true){
+  const box=document.getElementById('batch-commit-feedback')||document.getElementById('batch-result');
+  const div=document.createElement('div');div.className=warning?'batch-inline-warning':'notice good';div.textContent=message;
+  box.replaceChildren(div);box.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 function renderBatchPreview(skipped=0,pages=1,total=batchRows.length){
   const root=document.getElementById('batch-result');
   const updates=batchRows.filter(x=>x.changeNeeded).length;
   const duplicates=batchRows.filter(x=>x.duplicate).length;
-  const uncertain=batchRows.filter(x=>x.uncertain||x.sameAmount).length;
-  if(!batchRows.length){root.innerHTML='<div class="notice" style="margin-top:13px">沒有抓到可確認的交易。請檢查信用卡、截圖年月，以及辨識文字是否包含日期、商家與台幣金額。支援台新 Richart 的「11月份 → 07日 → 商家 → $金額」格式；這次沒有新增任何資料。</div>';return}
-  root.innerHTML=`<div class="batch-stat">找到 <b>${batchRows.length}</b> 筆候選交易（${pages} 張／段）<br>可以對帳更新 ${updates} 筆、已存在／疑似重複 ${duplicates} 筆、需人工核對 ${uncertain} 筆、未辨識日期列 ${skipped} 筆。${total>150?'只預覽前150筆。':''}<br><b>尚未寫入帳本；先確認選取和金額。</b></div>
+  const uncertain=batchRows.filter(x=>x.uncertain||x.sameAmount||x.repeatedOnPage||x.last4Mismatch).length;
+  const detected=[...new Set(batchRows.map(x=>x.detectedLast4).filter(Boolean))];
+  const currentCard=cards.find(c=>c.id===document.getElementById('batch-default-card').value);
+  const cardWarning=detected.length ? `<div class="notice ${currentCard?.last4&&detected.some(n=>n!==currentCard.last4)?'':'good'}" style="margin-top:12px">截圖辨識末四碼：<strong>${detected.map(html).join('、')}</strong>；目前選擇：<strong>${html(currentCard?.name||'尚未選卡')}</strong>${currentCard?.last4?'（'+html(currentCard.last4)+'）':'（尚未填末四碼）'}。${currentCard?.last4&&detected.some(n=>n!==currentCard.last4)?'<strong>末四碼不符，請改選正確卡片，不可直接匯入。</strong>':'請核對是否正確。'}</div>` : '';
+  if(!batchRows.length){root.innerHTML='<div class="notice" style="margin-top:13px">還沒辨識到可確認的交易。各銀行截圖排版不同（聯邦也可能和台新不同），請檢查選擇的信用卡、年月與文字。沒有寫入任何資料；可以先用下面的欄位補上一筆，或提供去識別化的聯邦 OCR 範例以改善自動辨識。</div>'+batchRecoveryForm();return}
+  root.innerHTML=`${cardWarning}<div class="batch-stat">找到 <b>${batchRows.length}</b> 筆候選交易（${pages} 張／段）<br>可以對帳更新 ${updates} 筆、已存在／疑似重複 ${duplicates} 筆、需人工核對 ${uncertain} 筆、未辨識日期列 ${skipped} 筆。${total>150?'只預覽前150筆。':''}<br><b>尚未寫入帳本；先確認選取和金額。</b></div>
     <div class="batch-tools"><button type="button" class="secondary" onclick="batchSelectSafe()">✓ 勾選安全項目</button><button type="button" class="secondary" onclick="batchClearSelect()">取消全部勾選</button></div>
     <div class="batch-list">${batchRows.map((row,i)=>{
-      const status=row.changeNeeded?'已記錄 → 對帳更新':row.duplicate?'已記錄／重複':row.negative?'退款／負數':row.uncertain||row.sameAmount?'需要核對':'可新增';
-      const explain=row.changeNeeded?`帳本原狀態：${STATUSES[row.existingStatus]}。這次只更新帳務狀態，不重複加總。`:row.duplicate?'帳本已有相同交易、或截圖重疊；不重複新增':row.negative?'退款、折讓或負數不會當一般消費':row.uncertain?'OCR 文字跨行或金額可能不明，請逐筆核對':row.sameAmount?'同卡同日已有同額交易，請選擇「配對既有交易」或確認為另一筆，避免重複記帳':'';
-      return `<div class="batch-item ${row.duplicate?'batch-duplicate':row.uncertain||row.sameAmount?'batch-warn':''}">
+      const status=row.changeNeeded?'已記錄 → 對帳更新':row.duplicate?'已記錄／重複':row.negative?'退款／負數':row.uncertain||row.sameAmount||row.repeatedOnPage||row.last4Mismatch?'需要核對':'可新增';
+      const explain=row.changeNeeded?`帳本原狀態：${STATUSES[row.existingStatus]}。這次只更新帳務狀態，不重複加總。`:row.duplicate?'帳本已有相同交易、或截圖重疊；不重複新增':row.negative?'退款、折讓或負數不會當一般消費':row.last4Mismatch?'選擇的卡片末四碼與截圖不同，請重新選卡片':row.repeatedOnPage?'同一張截圖有同日、同額、同商家交易；可能是真實多筆，請核對後自行勾選':row.uncertain?'OCR 文字跨行或金額可能不明，請逐筆核對':row.sameAmount?'同卡同日已有同額交易，請選擇「配對既有交易」或確認為另一筆，避免重複記帳':/[.…]{2,}/.test(row.merchant)?'銀行畫面截斷了商家名稱，如需完整店名可在此修改':'';
+      return `<div class="batch-item ${row.duplicate?'batch-duplicate':row.uncertain||row.sameAmount||row.repeatedOnPage||row.last4Mismatch?'batch-warn':''}">
         <div class="batch-head"><input type="checkbox" id="b-check-${i}" aria-label="選取第 ${i+1} 筆" ${row.checked?'checked':''} ${row.negative||row.duplicate?'disabled':''}><strong>第 ${i+1} 筆 · 圖片 ${row.page}</strong><span class="pill">${status}</span></div>
         <div class="batch-fields"><div><label for="b-date-${i}">消費日期</label><input type="date" id="b-date-${i}" value="${html(row.date)}" ${row.existingId?'readonly':''}></div>
         <div><label for="b-amount-${i}">台幣金額</label><input type="number" id="b-amount-${i}" min="1" inputmode="numeric" value="${row.amount}" ${row.existingId?'readonly':''}></div>
         <div class="batch-merchant"><label for="b-merchant-${i}">商家（可修改）</label><input id="b-merchant-${i}" value="${html(row.merchant)}" maxlength="100" ${row.existingId?'readonly':''}></div></div>
-        ${row.sameAmount?`<label for="b-match-${i}">同額交易配對（必須自行確認）</label><select id="b-match-${i}"><option value="">作為新的一筆消費</option>${items.filter(x=>x.card===row.card&&x.date===row.date&&Number(x.amount)===Number(row.amount)).map(x=>`<option value="${html(x.id)}">配對原交易：${html(x.merchant)}</option>`).join('')}</select>`:''}
+        ${row.sameAmount?`<label for="b-match-${i}">同額交易配對（必須自行確認）</label><select id="b-match-${i}"><option value="">作為新的一筆消費</option>${items.filter(x=>canMatchStatementCard(x.card,row.card)&&x.date===row.date&&Number(x.amount)===Number(row.amount)).map(x=>`<option value="${html(x.id)}">配對原交易：${html(cardName(x.card))}・${html(x.merchant)}</option>`).join('')}</select>`:''}
         ${explain?`<div class="batch-reason">${html(explain)}</div>`:''}
       </div>`;
-    }).join('')}</div><button class="batch-commit" type="button" onclick="commitBatch()">確認匯入／對帳勾選交易</button>`;
+    }).join('')}</div><button class="batch-commit" type="button" onclick="commitBatch()">檢查選取項目並準備匯入</button><div id="batch-commit-feedback" role="status" aria-live="polite"></div>${batchRecoveryForm()}`;
 }
-function batchSelectSafe(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=!row.duplicate&&!row.uncertain&&!row.sameAmount&&!row.negative})}
+function batchSelectSafe(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=!row.duplicate&&!row.uncertain&&!row.sameAmount&&!row.negative&&!row.repeatedOnPage&&!row.last4Mismatch})}
 function batchClearSelect(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=false})}
-function commitBatch(){
+function collectBatchCommit(){
   const card=document.getElementById('batch-default-card').value;
   const kind=document.getElementById('batch-kind').value;
   const statementMonth=kind==='billed'?document.getElementById('batch-statement-month').value:'';
   const dueDate=kind==='billed'?document.getElementById('batch-due-date').value:'';
-  if(!card)return toast('請先選擇信用卡');
-  if(kind==='billed'&&!statementMonth)return toast('請確認帳單月份');
+  if(!card)return {error:'請先選擇這次匯入的信用卡。'};
+  if(kind==='billed'&&!statementMonth)return {error:'請先確認帳單月份。'};
   const additions=[],updates=[];
-  let ignored=0;
+  let ignored=0,selected=0;
   const selectedKeys=new Set();
   for(let i=0;i<batchRows.length;i++){
     const chosen=document.getElementById('b-check-'+i);
     if(!chosen?.checked)continue;
+    selected++;
     const row=batchRows[i];
     if(row.negative||row.duplicate){ignored++;continue}
-    const date=document.getElementById('b-date-'+i).value;
-    const amount=Number(document.getElementById('b-amount-'+i).value);
-    const merchant=document.getElementById('b-merchant-'+i).value.trim();
-    if(!date||!Number.isFinite(amount)||amount<=0||!merchant)return toast(`第 ${i+1} 筆請先核對日期、商家、金額`);
+    const date=document.getElementById('b-date-'+i)?.value||'';
+    const amount=Number(document.getElementById('b-amount-'+i)?.value);
+    const merchant=document.getElementById('b-merchant-'+i)?.value.trim()||'';
+    if(!date||!Number.isFinite(amount)||amount<=0||!merchant)return {error:`第 ${i+1} 筆缺少日期、商家或金額，請先修正。`};
     const key=[card,date,amount,normalizedMerchant(merchant)].join('|');
-    if(selectedKeys.has(key)){ignored++;continue}
+    if(selectedKeys.has(key)&&!row.repeatedOnPage){ignored++;continue}
     selectedKeys.add(key);
     const chosenMatchId=document.getElementById('b-match-'+i)?.value||'';
-    const exact=(chosenMatchId?items.find(x=>x.id===chosenMatchId&&x.card===card&&x.date===date&&Number(x.amount)===amount):null)
-      ||items.find(x=>x.card===card&&x.date===date&&Number(x.amount)===amount&&normalizedMerchant(x.merchant)===normalizedMerchant(merchant));
+    const possibleMatches=items.filter(x=>canMatchStatementCard(x.card,card)&&x.date===date&&Number(x.amount)===amount&&normalizedMerchant(x.merchant)===normalizedMerchant(merchant));
+    const exact=(chosenMatchId?items.find(x=>x.id===chosenMatchId&&canMatchStatementCard(x.card,card)&&x.date===date&&Number(x.amount)===amount):null)
+      ||(possibleMatches.length===1?possibleMatches[0]:null);
     if(exact){
       const oldStatus=statusOf(exact);
       const shouldUpdate=(kind==='billed'&&!['billed','paid'].includes(oldStatus))||(kind==='unbilled'&&oldStatus==='unverified');
-      if(shouldUpdate&&!updates.some(u=>u.item.id===exact.id))updates.push({item:exact,oldStatus});else ignored++;
+      if(shouldUpdate&&!updates.some(u=>u.id===exact.id))updates.push({id:exact.id,oldStatus});else ignored++;
     }else{
       additions.push({id:createId(),date,amount,merchant,card,category:categoryFor(merchant),source:'batch-ocr',status:kind,
         ...(kind==='billed'?{statementMonth,dueDate}:{})});
     }
   }
-  if(!additions.length&&!updates.length)return toast('勾選交易都已存在，沒有新增或更新');
-  if(!confirm(`信用卡：${cardName(card)}\n匯入類別：${kind==='billed'?'已出帳待繳':'未出帳'}\n新增 ${additions.length} 筆、對帳更新 ${updates.length} 筆、略過 ${ignored} 筆。\n\n請再次確認這是銀行實際的明細，繼續嗎？`))return;
-  for(const {item} of updates){item.status=kind;if(kind==='billed'){item.statementMonth=statementMonth;item.dueDate=dueDate}}
-  items.push(...additions);
-  save();batchRows=[];
-  document.getElementById('batch-result').innerHTML=`<div class="notice good" style="margin-top:13px">對帳完成：新增 ${additions.length} 筆、更新 ${updates.length} 筆、略過 ${ignored} 筆。相同交易不會重複計算。可到「帳單」檢查狀態。</div>`;
-  document.getElementById('batch-ocr-text').value='';
-  toast(`已新增 ${additions.length} 筆、更新 ${updates.length} 筆`);
+  return {card,kind,statementMonth,dueDate,additions,updates,ignored,selected};
 }
+function commitBatch(){
+  try{
+    const result=collectBatchCommit();
+    if(result.error){batchShowMessage(result.error);return}
+    if(result.selected===0){batchShowMessage('目前沒有勾選任何交易。請先勾選要匯入的交易；如顯示「已記錄／重複」，代表不必再新增。');return}
+    if(!result.additions.length&&!result.updates.length){batchShowMessage(`已勾選 ${result.selected} 筆，但這些交易都已存在或沒有可更新的狀態，所以沒有寫入資料。`);return}
+    const feedback=document.getElementById('batch-commit-feedback');
+    feedback.innerHTML=`<div class="batch-confirm"><h3>確認這次的匯入內容</h3>
+      <div>信用卡：<strong>${html(cardName(result.card))}</strong></div>
+      <div>類型：<strong>${result.kind==='billed'?'已出帳待繳':'未出帳明細'}</strong></div>
+      <div>已勾選 <b>${result.selected}</b> 筆；預計新增 <b>${result.additions.length}</b> 筆、更新 <b>${result.updates.length}</b> 筆、略過 <b>${result.ignored}</b> 筆。</div>
+      <div class="summary">請確認上方每筆的日期、商家和金額；按下「正式寫入帳本」後才會儲存。</div>
+      <div class="actions"><button type="button" onclick="finalizeBatchImport()">確認，正式寫入帳本</button><button type="button" class="secondary" onclick="document.getElementById('batch-commit-feedback').replaceChildren()">返回檢查</button></div></div>`;
+    feedback.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }catch(err){console.error('批次匯入準備失敗',err);batchShowMessage('無法準備匯入：請重新按「辨識並預覽」；若仍失敗，請保留 OCR 文字並回報。')}
+}
+function finalizeBatchImport(){
+  try{
+    // Recompute once more, because form values may have changed since preview.
+    const result=collectBatchCommit();
+    if(result.error||(!result.additions.length&&!result.updates.length)){
+      batchShowMessage(result.error||'目前沒有可寫入的交易，請重新確認勾選內容。');return
+    }
+    const backup=items.slice();
+    for(const {id} of result.updates){
+      const item=items.find(x=>x.id===id);if(!item)continue;
+      item.status=result.kind;
+      if(result.kind==='billed'){item.statementMonth=result.statementMonth;item.dueDate=result.dueDate}
+    }
+    items.push(...result.additions);
+    try{save()}catch(e){items=backup;throw e}
+    batchRows=[];
+    document.getElementById('batch-ocr-text').value='';
+    document.getElementById('batch-result').innerHTML=`<div class="notice good" style="margin-top:13px" role="status">✓ 匯入完成！新增 ${result.additions.length} 筆、更新 ${result.updates.length} 筆、略過 ${result.ignored} 筆。沒有重複加總，可到「帳單」查看。</div>`;
+    document.getElementById('batch-result').scrollIntoView({block:'nearest',behavior:'smooth'});
+  }catch(err){console.error('批次儲存失敗',err);batchShowMessage('儲存失敗，尚未確認完成。可能是瀏覽器儲存空間不足，請先備份既有資料並再試一次。')}
+}
+
 function openBatchImport(){switchTab('import');const el=document.getElementById('batch-panel');el.open=true;requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}))}
 
 render();document.querySelector('[data-bottom="home"]')?.classList.add('active');
@@ -1469,6 +1743,10 @@ function receiveShortcutText(raw){
   const selected=cards.find(c=>c.id===candidate.card);
   const complete=!!selected && !!candidate.last4 && selected.last4===candidate.last4 &&
     candidate.merchant!=='待確認商家' && candidate.amount>0 && !!candidate.date;
+  if(resolveFubonHolding(candidate)){
+    showShortcutStatus('✅ 已將富邦合併明細配對到 '+cardName(candidate.card)+'；沒有重複新增。');
+    candidate=null;document.getElementById('message').value='';return;
+  }
   if(duplicateCandidate(candidate)){
     showShortcutStatus('🍡 已接收捷徑通知，但疑似重複消費；沒有再新增一筆。');
     parseNotice();return;
