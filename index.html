@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fff8f2">
+<meta name="theme-color" content="#f8f3ee">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>記帳小精靈｜CardFlow V6</title>
+<title>記帳小精靈｜CardFlow 奶油手帳 V8</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
 :root{
@@ -310,20 +310,191 @@ header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
  .cardname{font-size:14px}
 }
 
+
+/* V7: native iPhone month pickers instead of overflowing input[type=month] */
+main,section,.panel,.titlebar,.grid,.batch-panel{min-width:0;max-width:100%}
+.titlebar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.month-select{font-family:var(--round-font)!important;font-size:16px!important;min-width:0;width:100%;max-width:100%;height:50px;padding:10px 12px;background:#fffdfc;border:1px solid #e9dadd;border-radius:16px;box-sizing:border-box;-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center}
+.titlebar .overview-month{position:relative;z-index:1;flex:0 1 175px;width:175px;max-width:100%;min-width:0;background:#fffdfcf2}
+#entries .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+#entries .grid>div{min-width:0}
+#listmonth{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.batch-panel{overflow:hidden;padding:16px 14px}
+.batch-toggle{cursor:pointer;font-weight:900;font-size:17px;color:#775d70;display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;line-height:1.4}
+.batch-toggle::-webkit-details-marker{display:none}
+.batch-toggle .batch-open-hint{font-size:12px;white-space:nowrap;color:#b27e98;font-weight:700}
+.batch-panel[open] .batch-open-hint{font-size:0}
+.batch-panel[open] .batch-open-hint::after{content:'收合 ↑';font-size:12px}
+.batch-panel p.summary{font-size:13px;margin-top:15px}
+.batch-panel textarea{resize:vertical;line-height:1.6;font-size:16px!important}
+.batch-actions button{flex:1 1 140px}
+.batch-tools{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}
+.batch-tools button{flex:1 1 130px}
+.batch-stat{margin:14px 0 10px;border-radius:17px;padding:12px;background:linear-gradient(90deg,#fff0f4,#f3f0ff);font-size:13px;line-height:1.65}
+.batch-list{display:flex;flex-direction:column;gap:11px;margin:12px 0}
+.batch-item{border:1px solid #ebdde4;border-radius:20px;background:#fffdfa;padding:12px;min-width:0}
+.batch-item.batch-warn{background:#fff9ef;border-color:#eadac0}
+.batch-item.batch-duplicate{background:#faf7fb;border-color:#ddd1e1}
+.batch-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;min-width:0}
+.batch-head input[type=checkbox]{width:22px;min-width:22px;height:22px;min-height:22px;accent-color:#d786a5}
+.batch-head strong{font-size:14px;flex:1;min-width:0}
+.batch-head .pill{font-size:11px;flex-shrink:0}
+.batch-item .batch-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.batch-item .batch-fields>div{min-width:0}
+.batch-item label{margin:8px 0 4px;font-size:12px}
+.batch-item input,.batch-item select{min-width:0;max-width:100%;width:100%;box-sizing:border-box;font-size:16px!important;min-height:48px;padding:9px}
+.batch-item input[type=date]{-webkit-appearance:none;appearance:none;min-width:0}
+.batch-item .batch-merchant{grid-column:1/-1}
+.batch-item .batch-reason{font-size:12px;color:#997b8c;line-height:1.55;margin-top:8px}
+.batch-commit{width:100%;min-height:56px;border-radius:18px;font-size:16px}
+.batch-empty{font-size:13px;line-height:1.65;margin:12px 0}
+@media(max-width:560px){
+ .titlebar .overview-month{flex:1 1 100%;width:100%;max-width:100%}
+ #entries .grid{grid-template-columns:minmax(0,1fr)}
+ .batch-item .batch-fields{grid-template-columns:minmax(0,1fr)}
+ .batch-item .batch-merchant{grid-column:auto}
+ .batch-panel{padding:16px 13px}
+}
+
+
+
+/* V8 • Korean cream diary × minimal stationery / mobile-first */
+:root{
+  --bg:#f9f5f0;--bg2:#fbf8f4;--paper:#fffdfb;
+  --text:#51433f;--ink:#51433f;--muted:#988782;
+  --pink:#d8a1a7;--pink-deep:#b97886;--lav:#e8e0eb;
+  --mint:#e3eee6;--peach:#f1e2d5;--yellow:#f4e9d4;
+  --line:#eae0d9;--shadow:0 7px 22px rgba(98,67,57,.052);
+}
+html,body{background:radial-gradient(ellipse 520px 370px at 85% 0%,#f5e7e3 0%,transparent 70%),radial-gradient(ellipse 440px 320px at 0% 12%,#f4eae2 0%,transparent 76%),#faf7f3;color:var(--text)}
+main{max-width:700px}
+header{position:relative;padding:12px 2px 6px;margin:0 0 12px;align-items:center;min-height:124px}
+.brand-badge{background:#fffcfa;border:1px solid #eaddd9;border-radius:999px;color:#8f6667;box-shadow:0 4px 15px #76594a10;padding:7px 13px 7px 9px;font-size:12px;letter-spacing:.05em;gap:6px}
+.brand-dot{display:inline-grid;place-items:center;width:20px;height:20px;background:#f4e0e2;color:#b97d8b;border-radius:50%;font-size:12px}
+.brand-suffix{color:#b4a09a;font-weight:600;font-size:10px;letter-spacing:.07em}
+header h1{color:#594740;font-size:clamp(30px,8.2vw,39px);line-height:1.28;font-weight:900;letter-spacing:.025em;margin:12px 0 0;white-space:nowrap}
+.title-em{color:#9f6a73;position:relative;z-index:0}
+.title-em::after{content:'';position:absolute;left:0;right:1px;bottom:-1px;height:8px;border-radius:999px;background:#efd3d3;transform:rotate(-1deg);z-index:-1;opacity:.8}
+.title-spark{display:inline-block;color:#c49b8b;font-size:20px;margin-left:6px;vertical-align:top;transform:rotate(12deg)}
+.header-sticker{position:relative;width:92px;height:94px;flex-shrink:0;margin-right:8px;transform:rotate(7deg)}
+.sticker-card{display:block;position:absolute;width:70px;height:49px;border-radius:10px;box-shadow:0 7px 14px #81695c1c}
+.sticker-back{top:22px;left:2px;background:#e0d3cc;transform:rotate(-15deg);border:1px solid #c8b6ae}
+.sticker-front{top:31px;left:16px;background:linear-gradient(120deg,#e6c6bc,#d6a3a9);border:1px solid #d1a7a7}
+.sticker-front i{position:absolute;left:12px;top:17px;width:13px;height:9px;border-radius:3px;background:#f8e6c8;border:1px solid #d9b88b}
+.sticker-front b{position:absolute;right:9px;bottom:3px;color:#fffaf5;font-size:16px;font-weight:500}
+.sticker-spark{position:absolute;right:0;top:5px;font-size:19px;color:#d2a980}
+.prototype-note{margin:2px 0 15px;font-size:11px;line-height:1.55;background:#f9f5ef;border:1px dashed #e8dbd5;color:#8b7975;padding:10px 12px;box-shadow:none}
+.prototype-tag{margin-left:auto;background:#f0e3e0;color:#946e74;padding:3px 9px}
+.panel{border:1px solid #e9ded8;background:#fffdfb;border-radius:23px;box-shadow:var(--shadow);padding:17px 15px}
+.hero{background:linear-gradient(140deg,#fffaf5,#f8eee9 75%,#f7f1f0);border:1px solid #e9dcd5;border-radius:26px;padding:19px;box-shadow:0 8px 24px #7f64520e}
+.hero::before{content:'✧';font-size:33px;right:18px;top:50px;color:#dfc4ac;opacity:.8}
+.hero::after{width:140px;height:140px;right:-37px;top:-40px;opacity:.35;background:radial-gradient(circle,#ead3cc,transparent 72%)}
+.chip,.pill{border:1px solid #e6d9d3;background:#fffbf7;color:#8b7574;box-shadow:none;font-size:12px}
+.amount,#home .amount{color:#51403a;font-weight:900;font-size:clamp(31px,9.5vw,46px);letter-spacing:-.015em;margin:14px 0}
+.stat-tile{background:#fffdf8;border:1px solid #eaded4;padding:13px;border-radius:17px}
+.stat-tile:first-child{background:#fffdf8;border-color:#eaded4}
+.stat-tile:last-child{background:#faf2f1;border-color:#ead9d8}
+.stat-tile .icon{color:#b78783;font-size:16px}
+.stat-tile strong{color:#584742;font-size:19px}
+.cute-banner{background:linear-gradient(110deg,#fffdfb,#fbf1ed);border:1px dashed #e3cec7;border-radius:17px;box-shadow:none;padding:12px}
+.cute-banner .big{font-size:13px;color:#735951}
+.cute-banner .summary{color:#a08b85}
+.diary-flower{font-size:25px;color:#d3a6a5;font-weight:500;line-height:1}
+.quick-actions{gap:9px;margin:15px 0 12px}
+.quick-btn{background:#fffcfa!important;border:1px solid #e8dcd4;border-radius:18px;padding:12px 5px;min-height:96px;box-shadow:0 6px 14px #7659430b;color:#5e4b47;gap:4px}
+.quick-btn:nth-child(1),.quick-btn:nth-child(2),.quick-btn:nth-child(3){background:#fffcfa!important}
+.quick-btn .quick-icon{display:grid;place-items:center;border-radius:13px;width:36px;height:34px;font-size:22px;font-weight:500;color:#9d6a78;background:#f7e9e7}
+.quick-btn.quick-unbilled .quick-icon{background:#f5ecdf;color:#a88a66}
+.quick-btn.quick-manual .quick-icon{background:#eee9f0;color:#927c9b}
+.quick-btn b{font-size:13px;color:#65504c}
+.quick-btn small{font-size:11px;color:#a08a81}
+.quick-btn:active{background:#f7eee8!important}
+.unbilled-hint{margin:0 1px 16px;padding:12px 13px;display:flex;gap:11px;align-items:center;background:#f8f1e9;border:1px solid #ebddd0;border-radius:17px;color:#7b6257}
+.unbilled-icon{font-size:23px;align-self:flex-start;color:#b48d8e}
+.unbilled-hint>div{flex:1;min-width:0}
+.unbilled-hint strong{display:block;font-size:13px}
+.unbilled-hint p{font-size:11px;line-height:1.65;color:#9a8479;margin:4px 0 0}
+.unbilled-hint button{flex-shrink:0;min-height:42px;padding:9px 11px;border-radius:14px;color:#8d625c;background:#fffdfb;border:1px solid #eadbd3;box-shadow:none;font-size:12px}
+h2,.row h2{font-size:17px;color:#624d47;font-weight:900}
+.heading-mark{display:inline-grid;place-items:center;color:#bb8c8a;font-size:17px;margin-right:3px}
+#home>.panel:nth-child(3),#home>.panel:nth-child(4){background:#fffdfb}
+.card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.cardbox{border:1px solid #eaddd5;border-radius:18px;background:#fffdfa;padding:13px 12px;box-shadow:none;min-width:0}
+.cardbox::after{content:'✧';font-size:25px;right:10px;top:-6px;color:#ad8d8d;opacity:.13}
+.cardhead{gap:5px;align-items:flex-start;min-width:0}
+.cardhead .cardname{font-size:13px;line-height:1.4;overflow-wrap:anywhere;color:#68534e;font-weight:900}
+.cardhead .chip{padding:3px 5px;font-size:10px;flex-shrink:0}
+.card-amount{font-size:19px;color:#5d4945;overflow-wrap:anywhere}
+.bar{height:7px;background:#f1e9e5}
+.cardbox .summary{font-size:10px}
+.tx-tappable,.tx{background:#fffdfa;border:1px solid #e9ded8;border-radius:16px;box-shadow:none;color:#51413b;min-height:74px}
+.tx-tappable .tx-icon{background:#f6ebe5;border-radius:12px;width:40px;height:40px}
+.tx-copy strong{color:#594944;font-size:14px}
+.tx-price{font-size:13px;color:#795958}
+button{background:#b9818b;box-shadow:0 5px 14px #b0807f24;border-radius:15px;color:white}
+button.secondary{background:#fffcfa;color:#996f70;border:1px solid #e9d7d3;box-shadow:none}
+button.ghost{background:#faf2ed;color:#987974;border-color:#dfcfc5}
+button:active{transform:scale(.99)}
+input,select,textarea{background:#fffefa;border-color:#e3d8d0;color:#574843;border-radius:14px}
+input:focus,select:focus,textarea:focus{border-color:#bd9394;box-shadow:0 0 0 3px #dbc6bd5b}
+label{color:#79645e}
+.month-select{background:#fffdfa;border-color:#e5d8d2;border-radius:14px;color:#725851}
+.review-card,.batch-panel{background:#fffdfb;border:1px solid #e8dcd4;border-radius:22px}
+.review-card .review-submit,.batch-commit{background:#b9818b;box-shadow:0 5px 14px #b0807f24}
+.review-card input,.review-card select,.batch-item input,.batch-item select{border-color:#e3d8d0;background:#fffefa}
+.review-card .cardname,.batch-toggle{color:#64504b}
+.batch-stat{background:#f7f1eb}
+.batch-item{background:#fffdfa;border-color:#e7ddd6}
+.bottom-nav{background:#fffcf9f2;border-top:1px solid #e9ddd6;box-shadow:0 -5px 15px #624b3c0b}
+.bottom-nav button{color:#9d8980}
+.bottom-nav button.active{background:#f6e9e4;color:#9b6970}
+.bottom-nav button.nav-add .nav-symbol{background:#bd8b90}
+.bottom-nav button.nav-add.active{background:#f6e9e4}
+.tabs button{background:#fffdfa;color:#8d7971;border:1px solid #e6d9d3;box-shadow:none}
+.tabs button.active{background:#bd8b90;border-color:#bd8b90;color:#fff}
+.edit-sheet{background:#fffaf6}
+.screenshot-drop{background:#f8f1eb;border-color:#e7d8d0}
+.notice{background:#fff9f0;border-color:#e8d8c5;color:#88715f}
+.notice.good{background:#f1f7f0;border-color:#d7e8d5;color:#5b7c61}
+.footer-note{color:#a7938c;font-size:11px}
+@media(max-width:400px){
+ header{min-height:112px}
+ .brand-suffix{display:none}
+ .header-sticker{width:72px;height:85px;margin-right:2px}
+ .sticker-card{width:59px;height:42px}
+ .sticker-front{left:11px}
+ header h1{font-size:30px}
+ .cardbox{padding:12px 9px}
+ .card-amount{font-size:17px}
+ .cardhead .cardname{font-size:13px}
+ .cardhead .chip{font-size:9px}
+ .quick-btn b{font-size:13px}
+ .quick-btn small{font-size:10px}
+ .unbilled-hint{gap:8px;padding:10px}
+ .unbilled-hint button{padding:7px}
+}
+@media(max-width:340px){
+ .card-grid{grid-template-columns:minmax(0,1fr)}
+ .quick-actions{gap:5px}
+ .quick-btn{padding:10px 2px}
+ .quick-btn b{font-size:11px}
+ .unbilled-hint{flex-wrap:wrap}
+}
+
 </style>
 </head>
 <body>
 <main>
   <header>
     <div>
-      <div class="brand-badge">🍓 CardFlow</div>
-      <h1>記帳小精靈</h1>
+      <div class="brand-badge"><span class="brand-dot" aria-hidden="true">✿</span> CardFlow <span class="brand-suffix">/ little ledger</span></div>
+      <h1>記帳<span class="title-em">小精靈</span><span class="title-spark" aria-hidden="true">✧</span></h1>
       
     </div>
-    <div class="hero-emoji">🐰🌷</div>
+    <div class="header-sticker" aria-hidden="true"><span class="sticker-card sticker-back"></span><span class="sticker-card sticker-front"><i></i><b>♡</b></span><span class="sticker-spark">✳</span></div>
   </header>
 
-  <div class="notice prototype-note">🧸 這裡只記在你的瀏覽器裡，記得定期備份喔！<span class="prototype-tag">隱私版</span></div>
+  <div class="notice prototype-note">✧ 目前資料只存在你的瀏覽器裡，記得定期備份<span class="prototype-tag">隱私版</span></div>
 
   <nav class="tabs" id="tabs" aria-label="頁面導覽">
     <button class="active" data-tab="home">🏠 總覽</button>
@@ -335,32 +506,33 @@ header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
   <section id="home">
     <div class="panel hero">
       <div class="titlebar">
-        <span class="chip">🫧 本期已記錄消費</span>
-        <input id="month" type="month" style="width:155px;background:#ffffffc9;position:relative;z-index:1">
+        <span class="chip">本月消費紀錄</span>
+        <select id="month" class="month-select overview-month" aria-label="總覽月份"></select>
       </div>
       <div class="amount" id="total">NT$ 0</div>
       <div class="grid">
-        <div class="stat-tile"><div class="icon">🧁</div><div class="muted small">消費筆數</div><strong id="txcount">0 筆</strong></div>
-        <div class="stat-tile"><div class="icon">🎀</div><div class="muted small">待確認</div><strong id="pending">0 筆</strong></div>
+        <div class="stat-tile"><div class="icon">▦</div><div class="muted small">消費筆數</div><strong id="txcount">0 筆</strong></div>
+        <div class="stat-tile"><div class="icon">✦</div><div class="muted small">待確認</div><strong id="pending">0 筆</strong></div>
       </div>
       <div class="cute-banner">
         <div>
-          <div class="big">每天一點點，記下生活的小日子 ♡</div>
-          <div class="summary">溫柔記帳・安心掌握每張卡的消費 ♡</div>
+          <div class="big">花一點時間記帳，讓生活更從容</div>
+          <div class="summary">每一筆都好好整理，安心掌握每張卡的消費</div>
         </div>
-        <div style="font-size:28px">🐻</div>
+        <div class="diary-flower" aria-hidden="true">✳</div>
       </div>
     </div>
 
-    <div class="quick-actions"><button type="button" class="quick-btn" onclick="switchTab('import');document.getElementById('message').focus()"><span>📸</span><b>截圖記帳</b><small>LINE 通知</small></button><button type="button" class="quick-btn" onclick="goManual()"><span>✏️</span><b>手動新增</b><small>快速補登</small></button><button type="button" class="quick-btn" onclick="switchTab('entries')"><span>🧾</span><b>消費明細</b><small>查看・修改</small></button></div>
+    <div class="quick-actions" aria-label="記帳捷徑"><button type="button" class="quick-btn quick-line" onclick="switchTab('import');document.getElementById('message').focus()"><span class="quick-icon">⌗</span><b>LINE 記帳</b><small>單筆通知</small></button><button type="button" class="quick-btn quick-unbilled" onclick="openBatchImport()"><span class="quick-icon">▤</span><b>未出帳明細</b><small>截圖整理</small></button><button type="button" class="quick-btn quick-manual" onclick="goManual()"><span class="quick-icon">＋</span><b>手動新增</b><small>快速補登</small></button></div>
+    <div class="unbilled-hint"><span class="unbilled-icon">✧</span><div><strong>未出帳明細也要顧好</strong><p>從銀行截圖匯入前會先預覽、比對疑似重複交易；真正的出帳狀態仍以銀行帳單為準。</p></div><button type="button" onclick="openBatchImport()" aria-label="開啟未出帳截圖整理">前往 ›</button></div>
     <div class="panel">
-      <h2>💳 各卡消費</h2>
+      <h2><span class="heading-mark" aria-hidden="true">▣</span> 各卡消費</h2>
       <div id="cards" class="card-grid"></div>
     </div>
 
     <div class="panel">
       <div class="row">
-        <h2>🎀 最新交易</h2>
+        <h2><span class="heading-mark" aria-hidden="true">✳</span> 最近消費</h2>
         <button class="secondary" onclick="switchTab('entries')">查看全部</button>
       </div>
       <div id="recent" class="recent-list"></div>
@@ -373,7 +545,7 @@ header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
       <div class="grid">
         <div>
           <label>月份</label>
-          <input id="listmonth" type="month">
+          <select id="listmonth" class="month-select list-month" aria-label="明細月份"></select>
         </div>
         <div>
           <label>搜尋</label>
@@ -383,24 +555,12 @@ header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
       <p class="summary">輕點任一筆消費，就能修改日期、金額、商家、卡片和分類。</p><div id="transactions" class="tx-list" style="margin-top:12px"></div>
     </div>
 
-    <div class="panel">
-      <h2>🔐 加密資料備份</h2>
-      <label for="backup-password">備份密碼（至少 12 字元；請記住，忘記無法解密）</label>
-      <input id="backup-password" type="password" autocomplete="new-password" minlength="12" placeholder="輸入專屬備份密碼">
-      <div class="actions">
-        <button onclick="exportCSV()">匯出 CSV</button>
-        <button class="secondary" onclick="exportJSON()">匯出加密備份</button>
-        <button class="secondary" onclick="document.getElementById('restore').click()">還原加密備份</button>
-        <input id="restore" type="file" accept="application/json" class="hidden">
-      </div>
-      <div class="summary" style="margin-top:10px">加密備份可用於轉移裝置。CSV 匯出仍是明文，請妥善保存；本機記帳資料仍未加密。</div>
-    </div>
   </section>
 
   <section id="import" class="hidden">
     <div class="panel">
-      <h2>🍬 捷徑自動記帳</h2>
-      <div class="cute-banner" style="margin-bottom:14px"><div><div class="big">iPhone 捷徑 → CardFlow 🍬</div><div class="summary">從捷徑辨識文字後，自動開啟這個頁面並匯入。資訊完整時自動記帳，不完整時先請你確認。</div></div><div style="font-size:28px">✨</div></div>
+      <h2>捷徑自動記帳</h2>
+      <div class="cute-banner" style="margin-bottom:14px"><div><div class="big">iPhone 捷徑 → CardFlow</div><div class="summary">從捷徑辨識文字後，自動開啟這個頁面並匯入。資訊完整時自動記帳，不完整時先請你確認。</div></div><div class="diary-flower" aria-hidden="true">✳</div></div>
       <div id="shortcut-status" class="notice good" style="display:none;margin-bottom:13px" role="status" aria-live="polite"></div>
       <button class="secondary" type="button" onclick="testShortcutBridge()">🧪 模擬捷徑匯入一筆</button>
       <div class="summary" style="margin-top:9px">需先部署至 HTTPS 網站，捷徑才能穩定開啟同一份記帳資料。未部署前請用此測試按鈕確認流程。</div>
@@ -412,13 +572,33 @@ header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
       <textarea id="message" placeholder="例如：台新銀行提醒您，信用卡末四碼1234於2026/11/11在全聯福利中心消費TWD 1,280元。"></textarea>
       <div class="actions">
         <button onclick="parseNotice()">✨ 辨識消費通知</button>
-        <button class="ghost copy-demo" onclick="fillDemoNotice()">🧁 測試富邦通知</button>
+        <button class="ghost copy-demo" onclick="fillDemoNotice()">測試富邦通知</button>
       </div>
       <div id="parsebox"></div>
     </div>
 
+
+    <details class="panel batch-panel" id="batch-panel">
+      <summary class="batch-toggle"><span>▤ 帳單／未出帳明細截圖整理</span><span class="batch-open-hint">點我展開 ⌄</span></summary>
+      <p class="summary">把同一張信用卡的多張明細截圖交給 iPhone「捷徑」擷取文字，再<strong>一次貼上</strong>或讀取剪貼簿。這一版不會直接讀取照片，也不會上傳銀行畫面到伺服器。</p>
+      <div class="notice">🍪 每次建議先處理一張卡。只取「消費日・商家・台幣金額」；交易總計、可用額度、繳款資訊及退款不會自動列入。OCR 排版不清楚時，會留待人工確認。</div>
+      <label for="batch-default-card">💳 這次要記到哪張卡？</label>
+      <select id="batch-default-card"><option value="">請選擇一張信用卡</option></select>
+      <label for="batch-ocr-text">📝 截圖辨識後的文字（可一次貼多張）</label>
+      <textarea id="batch-ocr-text" rows="7" placeholder="例如：
+2026/11/08 全聯福利中心 580
+2026/11/09 好市多北投 1,299
+2026/11/10 UBER EATS 320"></textarea>
+      <div class="actions batch-actions">
+        <button type="button" class="secondary" onclick="readBatchClipboard()">📋 讀取剪貼簿</button>
+        <button type="button" class="secondary" onclick="fillBatchDemo()">🧁 載入示範</button>
+        <button type="button" onclick="previewBatch()">✨ 辨識並預覽</button>
+      </div>
+      <div id="batch-result" aria-live="polite"></div>
+    </details>
+
     <div class="panel">
-      <h2>📝 手動補登</h2>
+      <h2>手動補登</h2>
       <div class="grid">
         <div>
           <label>消費日期</label>
@@ -455,6 +635,18 @@ header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
       <button onclick="saveSettings()" style="margin-top:12px">💾 儲存卡片設定</button>
     </div>
 
+    <div class="panel">
+      <h2>🔐 加密資料備份</h2>
+      <label for="backup-password">備份密碼（至少 12 字元；請記住，忘記無法解密）</label>
+      <input id="backup-password" type="password" autocomplete="new-password" minlength="12" placeholder="輸入專屬備份密碼">
+      <div class="actions">
+        <button onclick="exportCSV()">匯出 CSV</button>
+        <button class="secondary" onclick="exportJSON()">匯出加密備份</button>
+        <button class="secondary" onclick="document.getElementById('restore').click()">還原加密備份</button>
+        <input id="restore" type="file" accept="application/json" class="hidden">
+      </div>
+      <div class="summary" style="margin-top:10px">加密備份可用於轉移裝置。CSV 匯出仍是明文，請妥善保存；本機記帳資料仍未加密。</div>
+    </div>
     <div class="panel">
       <h2>🧪 測試工具</h2>
       <p class="summary">可以載入示範資料，先看看畫面效果與使用方式，再決定要不要正式做成 LINE Bot。</p>
@@ -509,8 +701,19 @@ let candidate=null;
 const fmt=n=>'NT$ '+Number(n||0).toLocaleString('zh-TW');
 const today=new Date().toLocaleDateString('en-CA');
 const curr=today.slice(0,7);
-document.getElementById('month').value=curr;
-document.getElementById('listmonth').value=curr;
+function initializeMonthOptions(){
+  const origin=new Date();
+  for(const id of ['month','listmonth']){
+    const el=document.getElementById(id);
+    for(let offset=-24;offset<=12;offset++){
+      const d=new Date(origin.getFullYear(),origin.getMonth()+offset,1);
+      const value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const op=document.createElement('option');op.value=value;op.textContent=`${d.getFullYear()}年 ${d.getMonth()+1}月`;el.append(op);
+    }
+    el.value=curr;
+  }
+}
+initializeMonthOptions();
 document.getElementById('newdate').value=today;
 
 function save(){items=items.map(({raw,...entry})=>entry);localStorage.setItem(KEY,JSON.stringify(items));render()}
@@ -595,7 +798,7 @@ function saveSettings(){
     if((cl&&(+cl<1||+cl>31))||(d&&(+d<1||+d>31)))return alert('日期請輸入 1 到 31');
     cards[i].last4=l; cards[i].closing=cl; cards[i].due=d;
   }
-  localStorage.setItem(CARDKEY,JSON.stringify(cards)); render(); alert('已儲存設定 ♡');
+  localStorage.setItem(CARDKEY,JSON.stringify(cards)); render();populateBatchCard(); alert('已儲存設定 ♡');
 }
 
 function categoryFor(merchant){
@@ -802,7 +1005,7 @@ document.getElementById('restore').onchange=async e=>{
   if(!confirm('還原將覆蓋本機目前的消費與信用卡設定，確定嗎？'))return;
   items=restored.items.map(({raw,...entry})=>entry);cards=restored.cards;
   for(const c of initialCards){if(!cards.some(saved=>saved.id===c.id))cards.push({...c})}
-  localStorage.setItem(CARDKEY,JSON.stringify(cards));save();toast('🌷 還原完成');
+  localStorage.setItem(CARDKEY,JSON.stringify(cards));save();populateBatchCard();toast('🌷 還原完成');
  }catch(err){alert('還原失敗，請檢查密碼與檔案：'+err.message)}finally{e.target.value=''}
 };
 
@@ -818,6 +1021,181 @@ function addExamples(){
   alert('已加入示範資料 🌸');
 }
 function clearAll(){if(confirm('將清除所有交易紀錄（無法復原），確定？')){items=[];save()}}
+
+// Batch import is deliberately text-first: iPhone Shortcuts OCR runs on device.
+// Nothing is uploaded and nothing is saved until the user confirms the preview.
+const BATCH_SEPARATOR='===CARDFLOW_PAGE===';
+let batchRows=[];
+const batchIgnore=/總額|總計|合計|帳單|繳款|本期應繳|最低應繳|可用額度|信用額度|累計|上期餘額|循環利息|分期餘額|免年費|活動優惠|優惠內容|利率|客服|交易筆數|本期消費|帳戶資訊|回饋總計|點數總計|支付條碼|銀行代碼|結帳日|付款日期|查詢條件|已繳金額|調整金額|待繳金額|卡號|卡片名稱|消費明細|本期未出帳|未出帳總額|交易總額|消費總額|優惠活動/i;
+const batchRefund=/退款|退貨|退刷|沖正|取消交易|取消授權|退款入帳|已繳款|已付款|付款入帳|自動扣款|繳款入帳|繳費成功|預借現金/i;
+const batchDateSource='(?:20\\d{2}|1\\d{2})[\\/\\-.年]\\d{1,2}[\\/\\-.月]\\d{1,2}(?:日)?|\\d{1,2}[\\/\\-.月]\\d{1,2}(?:日)?';
+const batchStartDate=new RegExp('^\\s*('+batchDateSource+')(?=\\s|$|\\D)');
+function batchToDate(raw,year){
+  const fields=String(raw).match(/\d+/g)?.map(Number)||[];
+  if(fields.length<2)return '';
+  let [y,m,d]=fields.length>=3?fields:[Number(year),fields[0],fields[1]];
+  if(y>=100&&y<200)y+=1911;
+  if(y<2000||y>2100||m<1||m>12||d<1||d>31)return '';
+  const z=new Date(Date.UTC(y,m-1,d));
+  return z.getUTCFullYear()===y&&z.getUTCMonth()===m-1&&z.getUTCDate()===d?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+}
+function normalizedMerchant(value){return String(value||'').toUpperCase().replace(/[\s　·._\-＋+\(\)（）*#]/g,'').replace(/有限\s*公司|股份\s*有限公司/g,'').trim()}
+function findBatchMatch(row,previous){
+  const key=normalizedMerchant(row.merchant);
+  const candidates=items.concat(previous||[]);
+  return candidates.some(x=>x.card===row.card&&x.amount===row.amount&&x.date===row.date&&key&&normalizedMerchant(x.merchant)===key);
+}
+function findBatchSameAmount(row){
+  return items.some(x=>x.card===row.card&&x.date===row.date&&Number(x.amount)===Number(row.amount));
+}
+function parseBatchRow(line,year){
+  const norm=normalizeOCR(line).replace(/\t/g,' ').replace(/\s{2,}/g,' ').trim();
+  const dateHit=norm.match(batchStartDate);
+  if(!dateHit)return null;
+  const date=batchToDate(dateHit[1],year);
+  if(!date)return null;
+  let rest=norm.slice(dateHit[0].length).trim();
+  const second=rest.match(batchStartDate);
+  if(second)rest=rest.slice(second[0].length).trim();
+  if(batchIgnore.test(rest)||batchRefund.test(rest))return null;
+  // Require a plausible merchant containing letters or CJK text.
+  // Match the LAST numeric token as the posted TWD amount for common bank rows.
+  const match=rest.match(/(?:NT\s*\$|TWD|NTD)?\s*([+-]?(?:\d{1,3}(?:,\d{3})+|\d{1,8})(?:\.\d{1,2})?)\s*(?:元|TWD|NTD)?\s*$/i);
+  if(!match)return null;
+  const amount=Number(match[1].replace(/,/g,''));
+  let merchant=rest.slice(0,match.index).trim().replace(/(?:NT\s*\$|TWD|NTD)\s*$/i,'').trim();
+  if(!merchant||merchant.length<2||!/[\p{L}\p{Script=Han}]/u.test(merchant)||!Number.isFinite(amount)||amount===0)return null;
+  // Disallow rows that look like totals, user/card/account identifiers, and page numbers.
+  if(/^(?:第\d+頁|消費日|交易日期|入帳日期|合計|總額|原幣|本國幣|消費金額)/.test(merchant))return null;
+  const negative=amount<0 || /退刷|退款|折讓|退貨/.test(merchant);
+  const ambiguous=/(?:[+-]?\d[\d,.]*\s+){2,}/.test(merchant) || /(?:USD|JPY|KRW|CNY|EUR|GBP|THB|SGD|US\$)/i.test(rest);
+  return {date,amount:Math.abs(amount),merchant:merchant.slice(0,100),category:categoryFor(merchant),source:'batch-ocr',negative,ambiguous};
+}
+function extractBatchRows(text,year){
+  const pages=normalizeOCR(text).replace(/\r/g,'').split(/===\s*CARDFLOW[_ -]?PAGE\s*===/i);
+  const rows=[];
+  let skipped=0;
+  pages.forEach((page,pi)=>{
+    const lines=page.split('\n').map(x=>x.trim()).filter(Boolean);
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i];
+      if(!batchStartDate.test(line))continue;
+      let parsed=parseBatchRow(line,year);
+      // A bank card-style UI sometimes places merchant/amount on following lines.
+      // These multi-line guesses are marked uncertain and excluded by default.
+      let multiline=false;
+      if(!parsed && i+1<lines.length&&!batchStartDate.test(lines[i+1])){
+        const next=lines.slice(i+1,Math.min(i+3,lines.length)).filter(v=>!batchIgnore.test(v)&&!batchRefund.test(v));
+        for(let take=1;take<=next.length;take++){
+          parsed=parseBatchRow([line,...next.slice(0,take)].join(' '),year);
+          if(parsed){multiline=true;i+=take;break}
+        }
+      }
+      if(parsed){
+        parsed.page=pi+1;parsed.uncertain=multiline||parsed.ambiguous||parsed.negative;
+        rows.push(parsed);
+      }else skipped++;
+    }
+  });
+  return {rows,skipped,pages:pages.length};
+}
+function populateBatchCard(){
+  const el=document.getElementById('batch-default-card');
+  if(!el)return;
+  const before=el.value;
+  el.innerHTML='<option value="">請選擇一張信用卡</option>'+cards.map(c=>`<option value="${html(c.id)}">${html(c.name)}${c.last4?'（'+html(c.last4)+'）':''}</option>`).join('');
+  if(cards.some(c=>c.id===before))el.value=before;
+}
+populateBatchCard();
+async function readBatchClipboard(){
+  try{
+    if(!navigator.clipboard?.readText)throw Error('Safari 尚未提供剪貼簿讀取權限');
+    const value=await navigator.clipboard.readText();
+    if(!value.trim())throw Error('剪貼簿沒有文字');
+    document.getElementById('batch-ocr-text').value=value;
+    toast('📋 已取得文字，請點「辨識並預覽」');
+  }catch(e){toast('無法自動讀取；請長按欄位選「貼上」')}
+}
+function fillBatchDemo(){
+  const y=today.slice(0,4);
+  document.getElementById('batch-ocr-text').value=`銀行未出帳明細（測試資料）\n消費日 商店 金額\n${y}/11/08 全聯福利中心 580\n${y}/11/09 好市多北投 1,299\n${y}/11/10 UBER EATS 320\n本期未出帳總額 2,199`;
+  toast('🧁 已填入示範文字，請先選卡片');
+}
+function previewBatch(){
+  const text=document.getElementById('batch-ocr-text').value.trim();
+  const card=document.getElementById('batch-default-card').value;
+  if(!card)return toast('💳 請先選擇這次要記的信用卡');
+  if(!text)return toast('請先貼上捷徑擷取的文字');
+  if(text.length>100000)return toast('文字太多，建議每次分批匯入 5～10 張截圖');
+  const parsed=extractBatchRows(text,today.slice(0,4));
+  const seen=[];
+  batchRows=parsed.rows.slice(0,150).map((x,i)=>{
+    const row={...x,card,uid:i};
+    const duplicate=findBatchMatch(row,seen);
+    const sameAmount=!duplicate&&findBatchSameAmount(row);
+    row.duplicate=duplicate;row.sameAmount=sameAmount;
+    row.checked=!duplicate&&!sameAmount&&!row.uncertain;
+    seen.push(row);
+    return row;
+  });
+  renderBatchPreview(parsed.skipped,parsed.pages, parsed.rows.length);
+}
+function renderBatchPreview(skipped=0,pages=1,total=batchRows.length){
+  const root=document.getElementById('batch-result');
+  const duplicates=batchRows.filter(x=>x.duplicate).length;
+  const uncertain=batchRows.filter(x=>x.uncertain||x.sameAmount).length;
+  if(!batchRows.length){root.innerHTML=`<div class="notice" style="margin-top:13px">⚠️ 沒有抓到安全可辨識的交易列。請先放大銀行未出帳表格，讓「日期、商家、台幣金額」出現在同一行，再截圖。這次不會新增任何紀錄。</div>`;return}
+  root.innerHTML=`<div class="batch-stat">🍓 共找到 <b>${batchRows.length}</b> 筆候選交易（${pages} 段文字）<br>🎀 疑似重複 ${duplicates} 筆；需核對 ${uncertain} 筆；未能辨識的日期列 ${skipped} 筆${total>150?'；僅預覽前 150 筆':''}。<br><b>所有資料都還沒儲存</b>，請先檢查再一次匯入。</div>
+    <div class="batch-tools"><button type="button" class="secondary" onclick="batchSelectSafe()">✓ 選取可匯入的交易</button><button type="button" class="secondary" onclick="batchClearSelect()">清除勾選</button></div>
+    <div class="batch-list" id="batch-list">${batchRows.map((row,i)=>{
+      const status=row.duplicate?'疑似重複':row.negative?'退款／負數':row.uncertain||row.sameAmount?'需要確認':'待匯入';
+      const explain=row.duplicate?'和已記錄交易或另一張截圖相同，預設不勾選':row.negative?'退款、折讓或負數不應當一般消費，請另行核對':row.uncertain?'影像辨識可能跨行或有多種幣別，請確認金額是否台幣':row.sameAmount?'同一張卡同日期已有相同金額，請檢查是否重複':'';
+      return `<div class="batch-item ${row.duplicate?'batch-duplicate':row.uncertain||row.sameAmount?'batch-warn':''}" data-batch-index="${i}">
+        <div class="batch-head"><input type="checkbox" id="b-check-${i}" aria-label="選取第 ${i+1} 筆" ${row.checked?'checked':''} ${row.negative?'disabled':''}><strong>第 ${i+1} 筆 · 截圖 ${row.page}</strong><span class="pill">${status}</span></div>
+        <div class="batch-fields"><div><label for="b-date-${i}">消費日期</label><input type="date" id="b-date-${i}" value="${html(row.date)}"></div>
+        <div><label for="b-amount-${i}">台幣金額</label><input type="number" min="1" inputmode="numeric" id="b-amount-${i}" value="${row.amount}"></div>
+        <div class="batch-merchant"><label for="b-merchant-${i}">商家（可修改）</label><input id="b-merchant-${i}" value="${html(row.merchant)}" maxlength="100"></div></div>
+        ${explain?`<div class="batch-reason">⚠️ ${explain}</div>`:''}
+      </div>`}).join('')}</div>
+    <button class="batch-commit" type="button" onclick="commitBatch()">🩷 確認，批次匯入勾選交易</button>`;
+}
+function batchSelectSafe(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=!row.duplicate&&!row.uncertain&&!row.sameAmount&&!row.negative})}
+function batchClearSelect(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=false})}
+function commitBatch(){
+  const card=document.getElementById('batch-default-card').value;
+  if(!card)return toast('請先選擇信用卡');
+  const selected=[];
+  for(let i=0;i<batchRows.length;i++){
+    const checkbox=document.getElementById('b-check-'+i);
+    if(!checkbox?.checked)continue;
+    const row=batchRows[i];
+    if(row.negative)continue;
+    const date=document.getElementById('b-date-'+i).value;
+    const amount=Number(document.getElementById('b-amount-'+i).value);
+    const merchant=document.getElementById('b-merchant-'+i).value.trim();
+    if(!date||!Number.isFinite(amount)||amount<=0||!merchant)return toast(`第 ${i+1} 筆請確認日期、商家與台幣金額`);
+    selected.push({...row,date,amount,merchant,card,category:categoryFor(merchant),source:'batch-ocr'});
+  }
+  if(!selected.length)return toast('請先勾選要匯入的交易');
+  // Re-check after editing, including within the current batch.
+  const unique=[];let skipped=0;
+  for(const row of selected){
+    if(findBatchMatch(row,unique)){skipped++;continue}
+    const {negative,ambiguous,uncertain,duplicate,sameAmount,checked,page,uid,...entry}=row;
+    unique.push(entry);
+  }
+  if(!unique.length)return toast('勾選交易與帳本重複，沒有新增');
+  if(!confirm(`準備新增 ${unique.length} 筆交易到「${cardName(card)}」。${skipped?`另有 ${skipped} 筆相同交易將略過。`:''}\n請確認每筆日期、商家與台幣金額都正確，繼續嗎？`))return;
+  items.push(...unique.map(x=>({...x,id:crypto.randomUUID()})));
+  save();
+  document.getElementById('batch-result').innerHTML=`<div class="notice good" style="margin-top:14px">🎉 成功加入 ${unique.length} 筆消費！${skipped?`已略過 ${skipped} 筆疑似重複。`:''}可到「明細」查看及修改。</div>`;
+  batchRows=[];
+  document.getElementById('batch-ocr-text').value='';
+  document.getElementById('listmonth').value=unique[0]?.date.slice(0,7)||curr;
+  toast(`🍓 批次新增 ${unique.length} 筆完成`);
+}
+function openBatchImport(){switchTab('import');const el=document.getElementById('batch-panel');el.open=true;requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}))}
+
 render();document.querySelector('[data-bottom="home"]')?.classList.add('active');
 
 // Shortcut bridge: the OCR result is placed in the URL fragment, not transmitted to the host.
@@ -859,6 +1237,10 @@ function receiveShortcutText(raw){
   }
 }
 function receiveShortcutHash(){
+  if(location.hash==='#cf-batch'){
+    try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+    openBatchImport();toast('📋 請點「讀取剪貼簿」，再預覽交易');return;
+  }
   const prefix='#cf-import=';
   if(!location.hash.startsWith(prefix))return;
   const payload=location.hash.slice(prefix.length);
