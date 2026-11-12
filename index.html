@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f8f3ee">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>記帳小精靈｜CardFlow 奶油手帳 V8</title>
+<title>記帳小精靈｜CardFlow 奶油手帳 V9</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
 :root{
@@ -481,6 +481,52 @@ label{color:#79645e}
  .unbilled-hint{flex-wrap:wrap}
 }
 
+
+/* V9: statement reconciliation, thumb-friendly bill management */
+.bill-state-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bill-state-card{background:#fffcf9;border:1px solid #e9ddd7;border-radius:18px;padding:14px 11px;min-width:0}
+.bill-state-card .status-label{font-size:12px;color:#88736d;line-height:1.5}
+.bill-state-card strong{display:block;font-size:clamp(17px,4.9vw,24px);color:#55433d;overflow-wrap:anywhere;margin-top:5px}
+.bill-state-card small{display:block;font-size:11px;line-height:1.5;margin-top:4px;color:#96837c}
+.bill-state-card.unbilled{background:#faf0ec;border-color:#ebd6d2}
+.bill-state-card.billed{background:#fff7ea;border-color:#eedcc5}
+.bill-state-card.paid{background:#f1f7f0;border-color:#dbe8d8}
+.bill-state-card.unverified{background:#f7f3f6;border-color:#e7dfe7}
+.bill-state-pill{display:inline-flex;border-radius:20px;padding:3px 9px;font-size:11px;background:#f5eee9;color:#876f67;white-space:nowrap;max-width:100%}
+.bill-status-head{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.bill-status-head h2{margin-bottom:0}
+.bill-page-filter{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0}
+.bill-page-filter>*{min-width:0}
+.bill-page-filter label{margin-top:0}
+.bill-account{border:1px solid #e9ded7;border-radius:18px;padding:13px;margin:11px 0;background:#fffdfa}
+.bill-account-head{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:10px}
+.bill-account-head strong{font-size:14px}
+.bill-account-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.bill-account-metrics span{font-size:11px;color:#8d7973}
+.bill-account-metrics b{display:block;font-size:16px;margin-top:3px;color:#5e4a45}
+.bill-transaction{border:1px solid #eadfd8;background:#fffdfa;border-radius:16px;padding:12px;margin:8px 0}
+.bill-transaction .bill-merchant{font-size:14px;font-weight:800;color:#5e4c48}
+.bill-transaction .bill-meta{font-size:11px;line-height:1.7;color:#9d8982}
+.bill-transaction .bill-amount{font-weight:900;white-space:nowrap}
+.bill-transaction button{min-height:40px;font-size:12px;padding:7px 12px}
+.statement-note{background:#f9f3eb;border:1px dashed #e4d4c7;border-radius:16px;padding:12px;font-size:12px;line-height:1.7;color:#7f6c63}
+.batch-config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.batch-config-grid>div{min-width:0}
+.batch-config-grid select,.batch-config-grid input{min-width:0;max-width:100%}
+.batch-subgroup{border:1px solid #eaded7;padding:12px;border-radius:17px;background:#fffaf6;margin:10px 0}
+.batch-kind-help{font-size:12px;line-height:1.65;color:#8f7b74;margin:8px 0}
+.batch-special{background:#f9f5ee;border:1px solid #e9dad2;border-radius:14px;padding:10px;font-size:12px;color:#8c716a;line-height:1.6;margin-top:7px}
+.inline-status{font-size:11px;color:#94786e;margin-top:4px}
+#edit-status,#new-status{min-height:50px}
+@media(max-width:640px){
+ .bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr));gap:1px}
+ .bottom-nav button{font-size:11px!important;padding:5px 1px;min-width:0}
+ .bottom-nav .nav-symbol{font-size:20px!important}
+ .bill-page-filter,.batch-config-grid{grid-template-columns:minmax(0,1fr)}
+ .bill-state-card{padding:11px 10px}
+ .bill-account-metrics{gap:6px}
+ .bill-account-metrics b{font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -500,6 +546,7 @@ label{color:#79645e}
     <button class="active" data-tab="home">🏠 總覽</button>
     <button data-tab="entries">🧾 消費明細</button>
     <button data-tab="import">⚡ 捷徑記帳</button>
+    <button data-tab="bills">▤ 帳單管理</button>
     <button data-tab="settings">⚙️ 卡片設定</button>
   </nav>
 
@@ -525,6 +572,11 @@ label{color:#79645e}
 
     <div class="quick-actions" aria-label="記帳捷徑"><button type="button" class="quick-btn quick-line" onclick="switchTab('import');document.getElementById('message').focus()"><span class="quick-icon">⌗</span><b>LINE 記帳</b><small>單筆通知</small></button><button type="button" class="quick-btn quick-unbilled" onclick="openBatchImport()"><span class="quick-icon">▤</span><b>未出帳明細</b><small>截圖整理</small></button><button type="button" class="quick-btn quick-manual" onclick="goManual()"><span class="quick-icon">＋</span><b>手動新增</b><small>快速補登</small></button></div>
     <div class="unbilled-hint"><span class="unbilled-icon">✧</span><div><strong>未出帳明細也要顧好</strong><p>從銀行截圖匯入前會先預覽、比對疑似重複交易；真正的出帳狀態仍以銀行帳單為準。</p></div><button type="button" onclick="openBatchImport()" aria-label="開啟未出帳截圖整理">前往 ›</button></div>
+    <div class="panel">
+      <div class="bill-status-head"><h2><span class="heading-mark">▤</span> 卡費狀態</h2><button type="button" class="secondary" onclick="switchTab('bills')">帳單管理 ›</button></div>
+      <div id="home-bill-states" class="bill-state-grid"></div>
+      <p class="summary">依你匯入或手動確認的狀態統計；尚未對帳的交易另外列出，不會當成銀行正式未出帳金額。</p>
+    </div>
     <div class="panel">
       <h2><span class="heading-mark" aria-hidden="true">▣</span> 各卡消費</h2>
       <div id="cards" class="card-grid"></div>
@@ -579,21 +631,26 @@ label{color:#79645e}
 
 
     <details class="panel batch-panel" id="batch-panel">
-      <summary class="batch-toggle"><span>▤ 帳單／未出帳明細截圖整理</span><span class="batch-open-hint">點我展開 ⌄</span></summary>
-      <p class="summary">把同一張信用卡的多張明細截圖交給 iPhone「捷徑」擷取文字，再<strong>一次貼上</strong>或讀取剪貼簿。這一版不會直接讀取照片，也不會上傳銀行畫面到伺服器。</p>
+      <summary class="batch-toggle"><span>▤ 截圖帳單批次匯入</span><span class="batch-open-hint">點我展開 ⌄</span></summary>
+      <p class="summary">在 iPhone「捷徑」中<strong>一次選取多張截圖</strong>，逐張從影像擷取文字並合併、複製到剪貼簿，再回到 CardFlow 一鍵讀取、預覽勾選。照片不會上傳到網站或 GitHub。</p>
       <div class="notice">🍪 每次建議先處理一張卡。只取「消費日・商家・台幣金額」；交易總計、可用額度、繳款資訊及退款不會自動列入。OCR 排版不清楚時，會留待人工確認。</div>
-      <label for="batch-default-card">💳 這次要記到哪張卡？</label>
-      <select id="batch-default-card"><option value="">請選擇一張信用卡</option></select>
+      <div class="batch-config-grid">
+        <div><label for="batch-default-card">💳 這次是哪張卡？</label><select id="batch-default-card"><option value="">請選擇一張信用卡</option></select></div>
+        <div><label for="batch-kind">📌 截圖屬於哪種明細？</label><select id="batch-kind" onchange="updateBatchKindUI()"><option value="unbilled">未出帳明細</option><option value="billed">已出帳帳單（待繳）</option></select></div>
+      </div>
+      <div id="batch-billed-options" class="batch-subgroup hidden"><label for="batch-statement-month">帳單月份（核對銀行帳單）</label><input id="batch-statement-month" type="month"><label for="batch-due-date">本期繳款截止日（選填）</label><input id="batch-due-date" type="date"></div>
+      <p class="batch-kind-help" id="batch-kind-help">未出帳截圖：匯入後標記「未出帳」；沒有銀行證據的舊紀錄不會自動變成未出帳。</p>
       <label for="batch-ocr-text">📝 截圖辨識後的文字（可一次貼多張）</label>
       <textarea id="batch-ocr-text" rows="7" placeholder="例如：
 2026/11/08 全聯福利中心 580
 2026/11/09 好市多北投 1,299
 2026/11/10 UBER EATS 320"></textarea>
       <div class="actions batch-actions">
-        <button type="button" class="secondary" onclick="readBatchClipboard()">📋 讀取剪貼簿</button>
+        <button type="button" class="secondary" onclick="readBatchClipboard(true)">📋 從捷徑貼上並預覽</button>
         <button type="button" class="secondary" onclick="fillBatchDemo()">🧁 載入示範</button>
         <button type="button" onclick="previewBatch()">✨ 辨識並預覽</button>
       </div>
+      <div class="batch-special">🔐 最省步驟：捷徑「選取多張照片 → 重複每一項目擷取文字 → 合併文字 → 複製到剪貼簿 → 開啟 CardFlow/#cf-batch」。進來後選卡片，按「從捷徑貼上並預覽」。Safari 可能要求貼上權限。</div>
       <div id="batch-result" aria-live="polite"></div>
     </details>
 
@@ -623,14 +680,27 @@ label{color:#79645e}
         <option>醫療</option>
         <option>其他</option>
       </select>
-      <button style="margin-top:12px" onclick="addManual()">➕ 新增紀錄</button>
+      <label for="new-status">帳務狀態</label><select id="new-status"><option value="unverified">待核對（推薦）</option><option value="unbilled">未出帳（已查看銀行明細）</option><option value="billed">已出帳待繳（已查看帳單）</option><option value="paid">已繳款（已確認）</option></select>
+      <button style="margin-top:12px" onclick="addManual()">＋ 新增紀錄</button>
     </div>
   </section>
 
+  <section id="bills" class="hidden">
+    <div class="panel"><div class="bill-status-head"><h2>▤ 帳單與未出帳管理</h2><span class="chip">銀行截圖核對</span></div>
+      <div class="statement-note">依你上傳截圖辨識出的文字或手動確認紀錄整理。只有銀行資料核對後，才標記未出帳、已出帳或已繳款；無法直接連線查詢銀行卡費。</div>
+      <div id="bills-states" class="bill-state-grid" style="margin-top:12px"></div>
+      <h2 style="margin-top:20px">各張信用卡</h2><div id="bills-card-summaries"></div>
+    </div>
+    <div class="panel">
+      <div class="bill-status-head"><h2>交易狀態明細</h2><button type="button" class="secondary" onclick="openBatchImport()">＋ 截圖匯入</button></div>
+      <div class="bill-page-filter"><div><label for="bills-card-filter">信用卡</label><select id="bills-card-filter" onchange="renderBills()"><option value="">全部信用卡</option></select></div><div><label for="bills-status-filter">狀態</label><select id="bills-status-filter" onchange="renderBills()"><option value="all">全部</option><option value="unbilled">未出帳</option><option value="billed">已出帳待繳</option><option value="paid">已繳款</option><option value="unverified">待核對</option></select></div></div>
+      <div id="bills-transactions" style="margin-top:14px"></div>
+    </div>
+  </section>
   <section id="settings" class="hidden">
     <div class="panel">
       <h2>⚙️ 信用卡與帳單設定</h2>
-      <p class="summary">結帳日和繳款日請依實際信用卡帳單填入。此原型目前以「消費月份」統計，還不會把資料換算成真正的銀行帳單週期。</p>
+      <p class="summary">結帳日和繳款日請依實際銀行帳單填寫。總覽以消費日月份統計；「帳單」頁則依核對後的未出帳、已出帳待繳、已繳款狀態整理，不會自行判定銀行正式帳單。</p>
       <div id="cardsettings"></div>
       <button onclick="saveSettings()" style="margin-top:12px">💾 儲存卡片設定</button>
     </div>
@@ -657,11 +727,12 @@ label{color:#79645e}
     </div>
   </section>
 
-  <p class="footer-note">made with ♡ · 記帳小精靈<br>本機試用版，請記得備份資料</p>
+  <p class="footer-note">made with ♡ · 記帳小精靈<br>本機隱私版 V9 · 截圖文字核對 · 請記得備份資料</p>
   <nav class="bottom-nav" aria-label="手機快速導覽">
     <button type="button" data-bottom="home" onclick="switchTab('home')"><span class="nav-symbol">🏠</span><span>總覽</span></button>
     <button type="button" data-bottom="entries" onclick="switchTab('entries')"><span class="nav-symbol">🧾</span><span>明細</span></button>
     <button type="button" class="nav-add" data-bottom="import" onclick="switchTab('import')"><span class="nav-symbol">＋</span><span>記一筆</span></button>
+    <button type="button" data-bottom="bills" onclick="switchTab('bills')"><span class="nav-symbol">▤</span><span>帳單</span></button>
     <button type="button" data-bottom="settings" onclick="switchTab('settings')"><span class="nav-symbol">⚙️</span><span>設定</span></button>
   </nav>
   <div id="edit-overlay" class="edit-overlay hidden" role="presentation" onclick="if(event.target===this)closeEdit()">
@@ -673,6 +744,8 @@ label{color:#79645e}
         <label for="edit-merchant">商家名稱</label><input id="edit-merchant" required placeholder="消費店家">
         <label for="edit-card">信用卡</label><select id="edit-card"></select>
         <label for="edit-category">消費分類</label><select id="edit-category"><option>生活採買</option><option>餐飲</option><option>購物</option><option>交通</option><option>旅遊</option><option>醫療</option><option>其他</option></select>
+        <label for="edit-status">帳務狀態</label><select id="edit-status" onchange="toggleEditBillingFields()"><option value="unverified">待核對</option><option value="unbilled">未出帳</option><option value="billed">已出帳待繳</option><option value="paid">已繳款</option></select>
+        <div id="edit-billing-fields"><div class="grid"><div><label for="edit-statement">帳單月份（選填）</label><input id="edit-statement" type="month"></div><div><label for="edit-due">繳款截止日（選填）</label><input id="edit-due" type="date"></div></div></div>
         <div class="edit-actions"><button type="button" class="delete-btn" onclick="deleteEditing()">刪除</button><button type="submit" class="save-btn">儲存修改 ♡</button></div>
       </form>
     </div>
@@ -698,6 +771,12 @@ if(!Array.isArray(cards))cards=initialCards.slice();
 for(const c of initialCards){if(!cards.some(saved=>saved.id===c.id))cards.push({...c})}
 
 let candidate=null;
+function createId(){
+  if(typeof crypto!=='undefined'&&crypto.randomUUID)return crypto.randomUUID();
+  const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);
+  bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+  return [...bytes].map((n,i)=>(i===4||i===6||i===8||i===10?'-':'')+n.toString(16).padStart(2,'0')).join('');
+}
 const fmt=n=>'NT$ '+Number(n||0).toLocaleString('zh-TW');
 const today=new Date().toLocaleDateString('en-CA');
 const curr=today.slice(0,7);
@@ -739,6 +818,39 @@ function cardTheme(i){
     ['💚 聯邦幸福 M 卡','linear-gradient(135deg,#effcf5,#fbfffd)','linear-gradient(90deg,#8ed9b8,#4fb995)']
   ][i]||['💳 信用卡','#fff','linear-gradient(90deg,#ddd,#bbb)'];
 }
+const STATUSES={unbilled:'未出帳',billed:'已出帳待繳',paid:'已繳款',unverified:'待核對'};
+function statusOf(entry){return Object.hasOwn(STATUSES,entry.status)?entry.status:'unverified'}
+function metricCards(entries=items){
+  const sums={unbilled:0,billed:0,paid:0,unverified:0};
+  for(const x of entries){const a=Number(x.amount);if(Number.isFinite(a))sums[statusOf(x)]+=a}
+  return sums;
+}
+function metricHtml(sums){
+  return [['unbilled','未出帳','銀行明細已核對'],['billed','已出帳待繳','銀行帳單已核對'],['paid','已繳款','手動確認已繳'],['unverified','待核對','僅有消費通知或舊紀錄']].map(([key,label,desc])=>`<div class="bill-state-card ${key}"><div class="status-label">${label}</div><strong>${fmt(sums[key])}</strong><small>${desc}</small></div>`).join('');
+}
+function renderBills(){
+  const root=document.getElementById('bills-states');if(!root)return;
+  root.innerHTML=metricHtml(metricCards());
+  const selection=document.getElementById('bills-card-filter');
+  const previous=selection.value;
+  selection.innerHTML='<option value="">全部信用卡</option>'+cards.map(c=>`<option value="${html(c.id)}">${html(c.name)}</option>`).join('');
+  if(cards.some(c=>c.id===previous))selection.value=previous;
+  document.getElementById('bills-card-summaries').innerHTML=cards.map(c=>{
+    const e=items.filter(x=>x.card===c.id),m=metricCards(e);
+    return `<div class="bill-account"><div class="bill-account-head"><strong>${html(c.name)}</strong><span class="pill">${e.length} 筆</span></div><div class="bill-account-metrics"><div><span>未出帳</span><b>${fmt(m.unbilled)}</b></div><div><span>已出帳待繳</span><b>${fmt(m.billed)}</b></div><div><span>已繳款（全部紀錄）</span><b>${fmt(m.paid)}</b></div><div><span>待核對</span><b>${fmt(m.unverified)}</b></div></div></div>`;
+  }).join('');
+  const wantedCard=selection.value,status=document.getElementById('bills-status-filter').value;
+  const filtered=items.filter(x=>(!wantedCard||x.card===wantedCard)&&(status==='all'||statusOf(x)===status)).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).slice(0,100);
+  const list=document.getElementById('bills-transactions');
+  list.innerHTML=filtered.map(x=>`<div class="bill-transaction"><div class="row"><div style="min-width:0"><div class="bill-merchant">${html(x.merchant||'未辨識商家')}</div><div class="bill-meta">${html(x.date)} · ${html(cardName(x.card))}<br><span class="bill-state-pill">${STATUSES[statusOf(x)]}</span>${x.statementMonth?' · '+html(x.statementMonth)+' 帳單':''}</div></div><div class="bill-amount">${fmt(x.amount)}</div></div><div class="actions"><button class="secondary" type="button" onclick="editTx('${x.id}')">修改狀態／內容</button>${statusOf(x)==='billed'?`<button type="button" onclick="markPaid('${x.id}')">標記已繳款</button>`:''}</div></div>`).join('')||'<div class="summary">目前沒有符合的交易，可以先用「截圖匯入」或「手動記帳」建立紀錄。</div>';
+  if(items.length>100){list.innerHTML+='<div class="summary">目前僅顯示前 100 筆；可使用卡片及狀態篩選縮小範圍。</div>'}
+}
+function markPaid(id){const x=items.find(a=>a.id===id);if(!x||statusOf(x)!=='billed')return;
+  if(!confirm(`確定銀行帳單「${cardName(x.card)}」的這筆 ${fmt(x.amount)} 已繳款？
+若僅繳了部分帳款，請不要標記為已繳。`))return;
+  x.status='paid';x.paidAt=today;save();toast('已標記已繳款');
+}
+function toggleEditBillingFields(){const type=document.getElementById('edit-status').value;document.getElementById('edit-billing-fields').classList.toggle('hidden',type==='unbilled'||type==='unverified')}
 function render(){
   const m=document.getElementById('month').value||curr, list=monthEntries(m), total=list.reduce((s,x)=>s+Number(x.amount),0);
   document.getElementById('total').textContent=fmt(total);
@@ -760,6 +872,8 @@ function render(){
     const [title,bg]=cardTheme(i);
     return `<div class="cardbox" style="margin:10px 0;background:${bg}"><div class="cardname" style="margin-bottom:8px">${title}</div><div class="grid"><div><label>卡號末四碼</label><input maxlength="4" inputmode="numeric" id="last${i}" value="${html(c.last4)}" placeholder="僅填 4 碼"></div><div><label>結帳日</label><input type="number" min="1" max="31" id="closing${i}" value="${html(c.closing)}" placeholder="例如 15"></div></div><label>繳款日（每月）</label><input type="number" min="1" max="31" id="due${i}" value="${html(c.due)}" placeholder="例如 3；若跨月請依帳單核對"></div>`
   }).join('');
+  const homeMetric=document.getElementById('home-bill-states');if(homeMetric)homeMetric.innerHTML=metricHtml(metricCards());
+  renderBills();
 }
 
 let editingId=null;
@@ -775,6 +889,10 @@ function editTx(id){
   document.getElementById('edit-card').innerHTML='<option value="">待確認卡片</option>'+cards.map(c=>`<option value="${html(c.id)}">${html(c.name)}</option>`).join('');
   document.getElementById('edit-card').value=x.card||'';
   document.getElementById('edit-category').value=x.category||'其他';
+  document.getElementById('edit-status').value=statusOf(x);
+  document.getElementById('edit-statement').value=x.statementMonth||'';
+  document.getElementById('edit-due').value=x.dueDate||'';
+  toggleEditBillingFields();
   document.getElementById('edit-overlay').classList.remove('hidden');
   document.body.classList.add('editing');
 }
@@ -785,7 +903,11 @@ function saveEdit(){
   if(!date||!merchant||!Number.isFinite(amt)||amt<=0)return toast('請填寫日期、商家與正確金額');
   const similarly=items.some(y=>y.id!==x.id&&y.date===date&&y.amount===amt&&y.merchant===merchant&&y.card===document.getElementById('edit-card').value);
   if(similarly&&!confirm('修改後與另一筆消費相似，仍要儲存嗎？'))return;
-  Object.assign(x,{amount:amt,date,merchant,card:document.getElementById('edit-card').value,category:document.getElementById('edit-category').value});
+  const nextStatus=document.getElementById('edit-status').value;
+  Object.assign(x,{amount:amt,date,merchant,card:document.getElementById('edit-card').value,category:document.getElementById('edit-category').value,
+    status:nextStatus,statementMonth:document.getElementById('edit-statement').value,dueDate:document.getElementById('edit-due').value});
+  if(nextStatus==='paid'&&!x.paidAt)x.paidAt=today;
+  if(nextStatus!=='paid')delete x.paidAt;
   save();closeEdit();toast('🌷 修改已儲存');
 }
 function deleteEditing(){if(!editingId)return;if(!confirm('確定刪除這筆消費？'))return;items=items.filter(x=>x.id!==editingId);save();closeEdit();toast('已刪除消費')}
@@ -924,7 +1046,7 @@ function confirmNotice(){
   if(!date||!merchant||!Number.isFinite(amount)||amount<=0)return alert('請確認日期、商家和正確金額');
   const result={...candidate,amount,date,merchant,card,category};
   if(duplicateCandidate(result)&&!confirm('疑似重複記帳，確定仍要新增？'))return;
-  items.push({...result,id:crypto.randomUUID()});
+  items.push({...result,id:createId(),status:'unverified'});
   save();
   document.getElementById('parsebox').innerHTML='<div class="notice good" style="margin-top:14px">🧸 記帳成功！已加入本機消費紀錄。</div>';
   candidate=null;
@@ -934,7 +1056,8 @@ function confirmNotice(){
 function addManual(){
   let amount=Number(document.getElementById('newamount').value),merchant=document.getElementById('newmerchant').value.trim(),date=document.getElementById('newdate').value;
   if(!merchant||!date||!Number.isFinite(amount)||amount<=0)return alert('請完整填入日期、商家及有效金額');
-  items.push({id:crypto.randomUUID(),date,amount,merchant,card:document.getElementById('newcard').value,category:document.getElementById('newcategory').value,source:'manual'});
+  const status=document.getElementById('new-status').value;
+  items.push({id:createId(),date,amount,merchant,card:document.getElementById('newcard').value,category:document.getElementById('newcategory').value,source:'manual',status,...(status==='paid'?{paidAt:today}:{})});
   save();
   document.getElementById('newamount').value='';document.getElementById('newmerchant').value='';toast('🩷 記帳成功！');
 }
@@ -1003,7 +1126,13 @@ document.getElementById('restore').onchange=async e=>{
   }else throw Error('備份格式不符');
   if(!Array.isArray(restored.items)||!Array.isArray(restored.cards))throw Error('備份內容不完整');
   if(!confirm('還原將覆蓋本機目前的消費與信用卡設定，確定嗎？'))return;
-  items=restored.items.map(({raw,...entry})=>entry);cards=restored.cards;
+  items=restored.items.filter(x=>x&&typeof x==='object'&&Number.isFinite(Number(x.amount)))
+    .map(({raw,...entry})=>({ ...entry,
+      id:typeof entry.id==='string'&&/^[0-9a-f-]{30,40}$/i.test(entry.id)?entry.id:createId(),
+      merchant:String(entry.merchant||'').slice(0,150),
+      status:statusOf(entry)
+    }));
+  cards=restored.cards.filter(x=>x&&typeof x==='object'&&typeof x.id==='string'&&/^[a-z0-9-]+$/.test(x.id)).map(x=>({...x,name:String(x.name||'').slice(0,70),last4:String(x.last4||'').replace(/\D/g,'').slice(-4)}));
   for(const c of initialCards){if(!cards.some(saved=>saved.id===c.id))cards.push({...c})}
   localStorage.setItem(CARDKEY,JSON.stringify(cards));save();populateBatchCard();toast('🌷 還原完成');
  }catch(err){alert('還原失敗，請檢查密碼與檔案：'+err.message)}finally{e.target.value=''}
@@ -1016,7 +1145,7 @@ function addExamples(){
     ['2026-11-09','Uber Eats',560,'ctbc','餐飲'],
     ['2026-11-07','高鐵',1490,'union','交通']
   ];
-  items.push(...samples.map(([date,merchant,amount,card,category])=>({id:crypto.randomUUID(),date,merchant,amount,card,category,source:'demo'})));
+  items.push(...samples.map(([date,merchant,amount,card,category])=>({id:createId(),date,merchant,amount,card,category,source:'demo'})));
   save();
   alert('已加入示範資料 🌸');
 }
@@ -1107,13 +1236,26 @@ function populateBatchCard(){
   if(cards.some(c=>c.id===before))el.value=before;
 }
 populateBatchCard();
-async function readBatchClipboard(){
+function updateBatchKindUI(){
+  const type=document.getElementById('batch-kind').value;
+  document.getElementById('batch-billed-options').classList.toggle('hidden',type!=='billed');
+  document.getElementById('batch-kind-help').textContent=type==='billed'
+    ?'已出帳帳單：和現有交易一致時，更新成「已出帳待繳」，不新增第二筆；已繳款紀錄不會倒退成待繳。'
+    :'未出帳明細：辨識後可標記「未出帳」，已出帳／已繳款的相同消費不會降級。';
+}
+document.getElementById('batch-statement-month').value=curr;
+const batchCardSelection=document.getElementById('batch-default-card');
+batchCardSelection.addEventListener('change',()=>{try{localStorage.setItem('cardflow_batch_last_card',batchCardSelection.value)}catch(e){}});
+try{const lastBatchCard=localStorage.getItem('cardflow_batch_last_card');if(lastBatchCard&&cards.some(c=>c.id===lastBatchCard))batchCardSelection.value=lastBatchCard}catch(e){}
+updateBatchKindUI();
+async function readBatchClipboard(autoPreview=false){
   try{
     if(!navigator.clipboard?.readText)throw Error('Safari 尚未提供剪貼簿讀取權限');
     const value=await navigator.clipboard.readText();
     if(!value.trim())throw Error('剪貼簿沒有文字');
     document.getElementById('batch-ocr-text').value=value;
-    toast('📋 已取得文字，請點「辨識並預覽」');
+    if(autoPreview&&document.getElementById('batch-default-card').value)previewBatch();
+    else toast('📋 已取得文字，請選卡片後點「辨識並預覽」');
   }catch(e){toast('無法自動讀取；請長按欄位選「貼上」')}
 }
 function fillBatchDemo(){
@@ -1124,75 +1266,95 @@ function fillBatchDemo(){
 function previewBatch(){
   const text=document.getElementById('batch-ocr-text').value.trim();
   const card=document.getElementById('batch-default-card').value;
-  if(!card)return toast('💳 請先選擇這次要記的信用卡');
+  const type=document.getElementById('batch-kind').value;
+  if(!card)return toast('請先選擇這次要記的信用卡');
   if(!text)return toast('請先貼上捷徑擷取的文字');
   if(text.length>100000)return toast('文字太多，建議每次分批匯入 5～10 張截圖');
+  if(type==='billed'&&!document.getElementById('batch-statement-month').value)return toast('請填入銀行帳單月份');
   const parsed=extractBatchRows(text,today.slice(0,4));
   const seen=[];
   batchRows=parsed.rows.slice(0,150).map((x,i)=>{
     const row={...x,card,uid:i};
-    const duplicate=findBatchMatch(row,seen);
-    const sameAmount=!duplicate&&findBatchSameAmount(row);
-    row.duplicate=duplicate;row.sameAmount=sameAmount;
-    row.checked=!duplicate&&!sameAmount&&!row.uncertain;
+    const same=items.find(it=>it.card===card&&it.date===row.date&&Number(it.amount)===row.amount&&normalizedMerchant(it.merchant)===normalizedMerchant(row.merchant));
+    const inBatch=findBatchMatch(row,seen);
+    row.existingId=same?.id||'';
+    row.existingStatus=same?statusOf(same):'';
+    row.internalDuplicate=!!inBatch&&!row.existingId;
+    row.sameAmount=!same&&!row.internalDuplicate&&findBatchSameAmount(row);
+    const changeNeeded=!!same&&((type==='billed'&&!['billed','paid'].includes(row.existingStatus))||(type==='unbilled'&&row.existingStatus==='unverified'));
+    row.changeNeeded=changeNeeded;
+    row.duplicate=!!same&&!changeNeeded||row.internalDuplicate;
+    row.checked=(!row.duplicate&&!row.sameAmount&&!row.uncertain&&!row.negative);
     seen.push(row);
     return row;
   });
-  renderBatchPreview(parsed.skipped,parsed.pages, parsed.rows.length);
+  renderBatchPreview(parsed.skipped,parsed.pages,parsed.rows.length);
 }
 function renderBatchPreview(skipped=0,pages=1,total=batchRows.length){
   const root=document.getElementById('batch-result');
+  const updates=batchRows.filter(x=>x.changeNeeded).length;
   const duplicates=batchRows.filter(x=>x.duplicate).length;
   const uncertain=batchRows.filter(x=>x.uncertain||x.sameAmount).length;
-  if(!batchRows.length){root.innerHTML=`<div class="notice" style="margin-top:13px">⚠️ 沒有抓到安全可辨識的交易列。請先放大銀行未出帳表格，讓「日期、商家、台幣金額」出現在同一行，再截圖。這次不會新增任何紀錄。</div>`;return}
-  root.innerHTML=`<div class="batch-stat">🍓 共找到 <b>${batchRows.length}</b> 筆候選交易（${pages} 段文字）<br>🎀 疑似重複 ${duplicates} 筆；需核對 ${uncertain} 筆；未能辨識的日期列 ${skipped} 筆${total>150?'；僅預覽前 150 筆':''}。<br><b>所有資料都還沒儲存</b>，請先檢查再一次匯入。</div>
-    <div class="batch-tools"><button type="button" class="secondary" onclick="batchSelectSafe()">✓ 選取可匯入的交易</button><button type="button" class="secondary" onclick="batchClearSelect()">清除勾選</button></div>
-    <div class="batch-list" id="batch-list">${batchRows.map((row,i)=>{
-      const status=row.duplicate?'疑似重複':row.negative?'退款／負數':row.uncertain||row.sameAmount?'需要確認':'待匯入';
-      const explain=row.duplicate?'和已記錄交易或另一張截圖相同，預設不勾選':row.negative?'退款、折讓或負數不應當一般消費，請另行核對':row.uncertain?'影像辨識可能跨行或有多種幣別，請確認金額是否台幣':row.sameAmount?'同一張卡同日期已有相同金額，請檢查是否重複':'';
-      return `<div class="batch-item ${row.duplicate?'batch-duplicate':row.uncertain||row.sameAmount?'batch-warn':''}" data-batch-index="${i}">
-        <div class="batch-head"><input type="checkbox" id="b-check-${i}" aria-label="選取第 ${i+1} 筆" ${row.checked?'checked':''} ${row.negative?'disabled':''}><strong>第 ${i+1} 筆 · 截圖 ${row.page}</strong><span class="pill">${status}</span></div>
-        <div class="batch-fields"><div><label for="b-date-${i}">消費日期</label><input type="date" id="b-date-${i}" value="${html(row.date)}"></div>
-        <div><label for="b-amount-${i}">台幣金額</label><input type="number" min="1" inputmode="numeric" id="b-amount-${i}" value="${row.amount}"></div>
-        <div class="batch-merchant"><label for="b-merchant-${i}">商家（可修改）</label><input id="b-merchant-${i}" value="${html(row.merchant)}" maxlength="100"></div></div>
-        ${explain?`<div class="batch-reason">⚠️ ${explain}</div>`:''}
-      </div>`}).join('')}</div>
-    <button class="batch-commit" type="button" onclick="commitBatch()">🩷 確認，批次匯入勾選交易</button>`;
+  if(!batchRows.length){root.innerHTML='<div class="notice" style="margin-top:13px">沒有抓到明確的交易列。請用 iPhone 捷徑「從影像擷取文字」，讓日期、商家、金額盡量同行；這次沒有新增任何資料。</div>';return}
+  root.innerHTML=`<div class="batch-stat">找到 <b>${batchRows.length}</b> 筆候選交易（${pages} 張／段）<br>可以對帳更新 ${updates} 筆、已存在／疑似重複 ${duplicates} 筆、需人工核對 ${uncertain} 筆、未辨識日期列 ${skipped} 筆。${total>150?'只預覽前150筆。':''}<br><b>尚未寫入帳本；先確認選取和金額。</b></div>
+    <div class="batch-tools"><button type="button" class="secondary" onclick="batchSelectSafe()">✓ 勾選安全項目</button><button type="button" class="secondary" onclick="batchClearSelect()">取消全部勾選</button></div>
+    <div class="batch-list">${batchRows.map((row,i)=>{
+      const status=row.changeNeeded?'已記錄 → 對帳更新':row.duplicate?'已記錄／重複':row.negative?'退款／負數':row.uncertain||row.sameAmount?'需要核對':'可新增';
+      const explain=row.changeNeeded?`帳本原狀態：${STATUSES[row.existingStatus]}。這次只更新帳務狀態，不重複加總。`:row.duplicate?'帳本已有相同交易、或截圖重疊；不重複新增':row.negative?'退款、折讓或負數不會當一般消費':row.uncertain?'OCR 文字跨行或金額可能不明，請逐筆核對':row.sameAmount?'同卡同日已有同額交易，請選擇「配對既有交易」或確認為另一筆，避免重複記帳':'';
+      return `<div class="batch-item ${row.duplicate?'batch-duplicate':row.uncertain||row.sameAmount?'batch-warn':''}">
+        <div class="batch-head"><input type="checkbox" id="b-check-${i}" aria-label="選取第 ${i+1} 筆" ${row.checked?'checked':''} ${row.negative||row.duplicate?'disabled':''}><strong>第 ${i+1} 筆 · 圖片 ${row.page}</strong><span class="pill">${status}</span></div>
+        <div class="batch-fields"><div><label for="b-date-${i}">消費日期</label><input type="date" id="b-date-${i}" value="${html(row.date)}" ${row.existingId?'readonly':''}></div>
+        <div><label for="b-amount-${i}">台幣金額</label><input type="number" id="b-amount-${i}" min="1" inputmode="numeric" value="${row.amount}" ${row.existingId?'readonly':''}></div>
+        <div class="batch-merchant"><label for="b-merchant-${i}">商家（可修改）</label><input id="b-merchant-${i}" value="${html(row.merchant)}" maxlength="100" ${row.existingId?'readonly':''}></div></div>
+        ${row.sameAmount?`<label for="b-match-${i}">同額交易配對（必須自行確認）</label><select id="b-match-${i}"><option value="">作為新的一筆消費</option>${items.filter(x=>x.card===row.card&&x.date===row.date&&Number(x.amount)===Number(row.amount)).map(x=>`<option value="${html(x.id)}">配對原交易：${html(x.merchant)}</option>`).join('')}</select>`:''}
+        ${explain?`<div class="batch-reason">${html(explain)}</div>`:''}
+      </div>`;
+    }).join('')}</div><button class="batch-commit" type="button" onclick="commitBatch()">確認匯入／對帳勾選交易</button>`;
 }
 function batchSelectSafe(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=!row.duplicate&&!row.uncertain&&!row.sameAmount&&!row.negative})}
 function batchClearSelect(){batchRows.forEach((row,i)=>{const el=document.getElementById('b-check-'+i);if(el)el.checked=false})}
 function commitBatch(){
   const card=document.getElementById('batch-default-card').value;
+  const kind=document.getElementById('batch-kind').value;
+  const statementMonth=kind==='billed'?document.getElementById('batch-statement-month').value:'';
+  const dueDate=kind==='billed'?document.getElementById('batch-due-date').value:'';
   if(!card)return toast('請先選擇信用卡');
-  const selected=[];
+  if(kind==='billed'&&!statementMonth)return toast('請確認帳單月份');
+  const additions=[],updates=[];
+  let ignored=0;
+  const selectedKeys=new Set();
   for(let i=0;i<batchRows.length;i++){
-    const checkbox=document.getElementById('b-check-'+i);
-    if(!checkbox?.checked)continue;
+    const chosen=document.getElementById('b-check-'+i);
+    if(!chosen?.checked)continue;
     const row=batchRows[i];
-    if(row.negative)continue;
+    if(row.negative||row.duplicate){ignored++;continue}
     const date=document.getElementById('b-date-'+i).value;
     const amount=Number(document.getElementById('b-amount-'+i).value);
     const merchant=document.getElementById('b-merchant-'+i).value.trim();
-    if(!date||!Number.isFinite(amount)||amount<=0||!merchant)return toast(`第 ${i+1} 筆請確認日期、商家與台幣金額`);
-    selected.push({...row,date,amount,merchant,card,category:categoryFor(merchant),source:'batch-ocr'});
+    if(!date||!Number.isFinite(amount)||amount<=0||!merchant)return toast(`第 ${i+1} 筆請先核對日期、商家、金額`);
+    const key=[card,date,amount,normalizedMerchant(merchant)].join('|');
+    if(selectedKeys.has(key)){ignored++;continue}
+    selectedKeys.add(key);
+    const chosenMatchId=document.getElementById('b-match-'+i)?.value||'';
+    const exact=(chosenMatchId?items.find(x=>x.id===chosenMatchId&&x.card===card&&x.date===date&&Number(x.amount)===amount):null)
+      ||items.find(x=>x.card===card&&x.date===date&&Number(x.amount)===amount&&normalizedMerchant(x.merchant)===normalizedMerchant(merchant));
+    if(exact){
+      const oldStatus=statusOf(exact);
+      const shouldUpdate=(kind==='billed'&&!['billed','paid'].includes(oldStatus))||(kind==='unbilled'&&oldStatus==='unverified');
+      if(shouldUpdate&&!updates.some(u=>u.item.id===exact.id))updates.push({item:exact,oldStatus});else ignored++;
+    }else{
+      additions.push({id:createId(),date,amount,merchant,card,category:categoryFor(merchant),source:'batch-ocr',status:kind,
+        ...(kind==='billed'?{statementMonth,dueDate}:{})});
+    }
   }
-  if(!selected.length)return toast('請先勾選要匯入的交易');
-  // Re-check after editing, including within the current batch.
-  const unique=[];let skipped=0;
-  for(const row of selected){
-    if(findBatchMatch(row,unique)){skipped++;continue}
-    const {negative,ambiguous,uncertain,duplicate,sameAmount,checked,page,uid,...entry}=row;
-    unique.push(entry);
-  }
-  if(!unique.length)return toast('勾選交易與帳本重複，沒有新增');
-  if(!confirm(`準備新增 ${unique.length} 筆交易到「${cardName(card)}」。${skipped?`另有 ${skipped} 筆相同交易將略過。`:''}\n請確認每筆日期、商家與台幣金額都正確，繼續嗎？`))return;
-  items.push(...unique.map(x=>({...x,id:crypto.randomUUID()})));
-  save();
-  document.getElementById('batch-result').innerHTML=`<div class="notice good" style="margin-top:14px">🎉 成功加入 ${unique.length} 筆消費！${skipped?`已略過 ${skipped} 筆疑似重複。`:''}可到「明細」查看及修改。</div>`;
-  batchRows=[];
+  if(!additions.length&&!updates.length)return toast('勾選交易都已存在，沒有新增或更新');
+  if(!confirm(`信用卡：${cardName(card)}\n匯入類別：${kind==='billed'?'已出帳待繳':'未出帳'}\n新增 ${additions.length} 筆、對帳更新 ${updates.length} 筆、略過 ${ignored} 筆。\n\n請再次確認這是銀行實際的明細，繼續嗎？`))return;
+  for(const {item} of updates){item.status=kind;if(kind==='billed'){item.statementMonth=statementMonth;item.dueDate=dueDate}}
+  items.push(...additions);
+  save();batchRows=[];
+  document.getElementById('batch-result').innerHTML=`<div class="notice good" style="margin-top:13px">對帳完成：新增 ${additions.length} 筆、更新 ${updates.length} 筆、略過 ${ignored} 筆。相同交易不會重複計算。可到「帳單」檢查狀態。</div>`;
   document.getElementById('batch-ocr-text').value='';
-  document.getElementById('listmonth').value=unique[0]?.date.slice(0,7)||curr;
-  toast(`🍓 批次新增 ${unique.length} 筆完成`);
+  toast(`已新增 ${additions.length} 筆、更新 ${updates.length} 筆`);
 }
 function openBatchImport(){switchTab('import');const el=document.getElementById('batch-panel');el.open=true;requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}))}
 
@@ -1225,7 +1387,7 @@ function receiveShortcutText(raw){
     parseNotice();return;
   }
   if(complete){
-    items.push({...candidate,id:crypto.randomUUID()});
+    items.push({...candidate,id:createId(),status:'unverified'});
     save();
     showShortcutStatus('✅ 自動記帳成功！'+candidate.merchant+' '+fmt(candidate.amount)+' · '+selected.name);
     document.getElementById('parsebox').innerHTML='<div class="notice good" style="margin-top:14px">🧸 已完成自動記帳！資料僅存在這個瀏覽器。</div>';
@@ -1239,7 +1401,7 @@ function receiveShortcutText(raw){
 function receiveShortcutHash(){
   if(location.hash==='#cf-batch'){
     try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
-    openBatchImport();toast('📋 請點「讀取剪貼簿」，再預覽交易');return;
+    openBatchImport();toast('請選卡片，再按「從捷徑貼上並預覽」');return;
   }
   const prefix='#cf-import=';
   if(!location.hash.startsWith(prefix))return;
