@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fff8f2">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>記帳小精靈｜CardFlow</title>
+<title>記帳小精靈｜CardFlow V6</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
 :root{
   --bg:#fff8fc;
   --bg2:#fff2f8;
@@ -23,7 +23,7 @@
   --blue:#cde6ff;
   --line:#f3dce6;
   --shadow:0 10px 30px rgba(229,126,168,.12);
-  --round-font:'Zen Maru Gothic','jf open 粉圓 1.1','JF Open 粉圓','Hannotate TC','Arial Rounded MT Bold','PingFang TC','Noto Sans TC',sans-serif;
+  --round-font:'Huninn','Zen Maru Gothic','jf open 粉圓 1.1','JF Open 粉圓','PingFang TC','Noto Sans TC',sans-serif;
   font-family:var(--round-font);
 }
 *{box-sizing:border-box}
@@ -187,7 +187,7 @@ h2,.section-title,.row h2{color:#725a6c;font-size:18px}
 
 
 /* V4 — Korean diary app. Mobile-first, thumbs-first controls. */
-:root{--ink:#66525e;--pink:#e99ab2;--mint:#cceadf;--cream:#fffaf2;--round-font:'Zen Maru Gothic','jf open 粉圓 1.1','JF Open 粉圓','PingFang TC',sans-serif}
+:root{--ink:#66525e;--pink:#e99ab2;--mint:#cceadf;--cream:#fffaf2;--round-font:'Huninn','Zen Maru Gothic','jf open 粉圓 1.1','JF Open 粉圓','PingFang TC',sans-serif}
 html{scroll-behavior:smooth}
 body{color:var(--ink);-webkit-tap-highlight-color:transparent}
 main{padding-bottom:110px;max-width:760px}
@@ -248,6 +248,68 @@ body.editing{overflow:hidden}
 @media(min-width:640px){.tx-tappable{min-height:78px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.toast{transition:none}}
 
+
+/* V6 · 韓系粉圓手帳，針對 iPhone 修正表單重疊及觸控體驗 */
+:root{--round-font:'Huninn','Zen Maru Gothic','JF Open 粉圓','PingFang TC',sans-serif;
+ --text:#705a66;--muted:#9a8595;--pink:#efaac1;--pink-deep:#d9819f;
+ --line:#f0e0e2;--shadow:0 8px 26px rgba(181,126,151,.08)}
+html{scroll-behavior:auto}
+html,body,button,input,select,textarea,label,nav,h1,h2,h3,small,.cardname,.tx-copy,.brand-badge{font-family:var(--round-font)!important}
+body{background:radial-gradient(ellipse at 8% 0%,#ffedf2 0%,transparent 35%),radial-gradient(ellipse at 94% 8%,#f0e9ff 0%,transparent 37%),#fffdf9}
+button{font-weight:800;letter-spacing:.015em}
+header h1{font-size:clamp(27px,7.6vw,33px);letter-spacing:.02em;font-weight:900}
+.brand-badge{background:#fff7f9;border-color:#f5d9e1;color:#b97293}
+.prototype-note{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fffaf0;border:1px solid #f4e9d8;font-size:12px;color:#967d83;padding:9px 12px}
+.prototype-tag{margin-left:auto;background:#f9e9ef;border-radius:30px;padding:2px 9px;color:#b46f88;font-size:11px;font-weight:800;white-space:nowrap}
+.panel{background:#fffdfd;border:1px solid #f0e3e5;box-shadow:0 6px 20px #ba90a714}
+.cardbox{background:#fffdfd;border-color:#f1dce7}
+.hero{background:linear-gradient(130deg,#fff4ed 0%,#ffedf3 55%,#f5efff 100%)}
+.notice.good{background:#f2fbf5;color:#5b806b}
+.quick-btn{border-color:#efdee6}
+.review-card{background:linear-gradient(150deg,#fffaf6 0%,#faf4ff 100%);border:1px solid #ecdde9;border-radius:26px;padding:17px 15px 18px;box-shadow:0 5px 20px #e8ccd31c;min-width:0;overflow:hidden}
+.review-card .cardname{font-size:19px;line-height:1.45;color:#7e6476}
+.review-helper{margin:8px 0 14px!important;line-height:1.6;color:#927e8d;font-size:13px}
+.review-primary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.review-primary-grid>div,.review-grid>div,.grid>div{min-width:0}
+.review-card label{display:block;font-size:13px;font-weight:800;color:#786276;margin:13px 0 6px;letter-spacing:0}
+.review-card input,.review-card select{display:block;min-width:0;max-width:100%;width:100%;box-sizing:border-box;border:1.5px solid #eedde0;border-radius:17px;background:#fff;min-height:51px;height:51px;padding:11px 13px;font-size:16px!important;font-weight:600;color:#705968;box-shadow:none}
+.review-card input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;text-align:left;padding-inline:12px}
+.review-card input[type=date]::-webkit-date-and-time-value{text-align:left;min-width:0}
+.review-amount-field input{color:#c3668c!important;font-size:20px!important;font-weight:900!important}
+.review-card .review-readonly{background:#f7f2f7;color:#967f92}
+.review-card .review-submit{display:block;width:100%;min-height:54px;margin-top:18px;border-radius:18px;background:linear-gradient(100deg,#e69ab5,#cf8eb7);font-size:16px;box-shadow:0 7px 20px #dfb1c360}
+.review-secondary-grid{gap:10px}
+#parsebox{scroll-margin-bottom:120px}
+#home .stat-tile strong,#home .amount,.card-amount{font-family:var(--round-font)!important;font-weight:900}
+#message,.tx-copy,.tx-price,.cardbox{min-width:0}
+@media(max-width:560px){
+ main{padding:13px 13px calc(112px + env(safe-area-inset-bottom));max-width:100%;min-width:0}
+ .panel{padding:16px 14px;border-radius:24px}
+ .review-card{padding:17px 14px;margin-top:14px}
+ .review-primary-grid{grid-template-columns:minmax(0,1fr);gap:0}
+ .review-primary-grid .review-date-field{order:2}
+ .review-primary-grid .review-amount-field{order:1}
+ .review-card label{margin-top:12px}
+ .review-amount-field input{font-size:22px!important}
+ .review-secondary-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .review-card input,.review-card select{font-size:16px!important}
+ .review-card input[type=date]{min-height:53px;height:53px}
+ #edit-form>.grid,#import .panel:last-of-type>.grid{grid-template-columns:minmax(0,1fr)!important;gap:0}
+ #edit-form input[type=date],#newdate{min-width:0;max-width:100%;height:51px}
+ #entries .panel:first-child>.grid{grid-template-columns:minmax(0,1fr);gap:0}
+ .bottom-nav button{font-size:13px;min-height:56px}
+ .bottom-nav{padding-top:7px;padding-bottom:calc(7px + env(safe-area-inset-bottom));}
+ .bottom-nav .nav-symbol{font-size:21px}
+ .tx-price{font-size:13px}
+ .tx-copy strong{font-size:14px}
+ .edit-sheet{padding-left:16px;padding-right:16px}
+}
+@media(max-width:370px){
+ .review-secondary-grid{grid-template-columns:minmax(0,1fr)}
+ .cardhead{align-items:flex-start}
+ .cardname{font-size:14px}
+}
+
 </style>
 </head>
 <body>
@@ -261,7 +323,7 @@ body.editing{overflow:hidden}
     <div class="hero-emoji">🐰🌷</div>
   </header>
 
-  <div class="notice prototype-note">🔐 隱私加強版・交易只存在此瀏覽器；備份可加密，尚未連接 LINE 或雲端。</div>
+  <div class="notice prototype-note">🧸 這裡只記在你的瀏覽器裡，記得定期備份喔！<span class="prototype-tag">隱私版</span></div>
 
   <nav class="tabs" id="tabs" aria-label="頁面導覽">
     <button class="active" data-tab="home">🏠 總覽</button>
@@ -337,7 +399,7 @@ body.editing{overflow:hidden}
 
   <section id="import" class="hidden">
     <div class="panel">
-      <h2>⚡ 捷徑魔法匯入</h2>
+      <h2>🍬 捷徑自動記帳</h2>
       <div class="cute-banner" style="margin-bottom:14px"><div><div class="big">iPhone 捷徑 → CardFlow 🍬</div><div class="summary">從捷徑辨識文字後，自動開啟這個頁面並匯入。資訊完整時自動記帳，不完整時先請你確認。</div></div><div style="font-size:28px">✨</div></div>
       <div id="shortcut-status" class="notice good" style="display:none;margin-bottom:13px" role="status" aria-live="polite"></div>
       <button class="secondary" type="button" onclick="testShortcutBridge()">🧪 模擬捷徑匯入一筆</button>
@@ -640,14 +702,14 @@ function parseNotice(){
   // No external image OCR or screenshot upload in privacy mode.
   const duplicate=duplicateCandidate(candidate);
   box.innerHTML=`<div class="review-card"><div class="cardname">🍭 幫你抓到一筆消費 ${duplicate?'<span class="negative">（疑似重複）</span>':''}</div>
-    <div class="summary" style="margin:5px 0 12px">請核對欄位，尤其是卡片和商家。任何資訊都可以先修正，再存入記帳。</div>
-    <div class="review-grid"><div><label>消費日期</label><input type="date" id="review-date" value="${html(candidate.date)}"></div>
-    <div><label>消費金額（TWD）</label><input type="number" min="1" step="1" id="review-amount" value="${html(candidate.amount)}"></div></div>
-    <label>消費商家</label><input id="review-merchant" value="${html(candidate.merchant)}">
-    <label>記到哪張信用卡？</label><select id="review-card"><option value="">待確認卡片</option>${cards.map(c=>`<option value="${html(c.id)}" ${candidate.card===c.id?'selected':''}>${html(c.name)}</option>`).join('')}</select>
-    <div class="review-grid"><div><label>分類</label><select id="review-category">${['生活採買','餐飲','購物','交通','旅遊','醫療','其他'].map(v=>`<option ${v===candidate.category?'selected':''}>${v}</option>`).join('')}</select></div>
-    <div><label>末四碼（僅供核對）</label><input readonly value="${html(candidate.last4||'未辨識')}" aria-label="辨識的卡號末四碼"></div></div>
-    <button style="margin-top:14px" onclick="confirmNotice()">🩷 確認加入這筆消費</button></div>`;
+    <div class="summary review-helper">先確認一下金額、卡片和商家，修改好再存入 ♡</div>
+    <div class="review-primary-grid"><div class="review-date-field"><label for="review-date">📅 消費日期</label><input type="date" id="review-date" value="${html(candidate.date)}"></div>
+    <div class="review-amount-field"><label for="review-amount">💰 消費金額（NT$）</label><input type="number" inputmode="numeric" min="1" step="1" id="review-amount" value="${html(candidate.amount)}"></div></div>
+    <label for="review-merchant">🛍️ 消費商家</label><input id="review-merchant" value="${html(candidate.merchant)}">
+    <label for="review-card">💳 記到哪張信用卡？</label><select id="review-card"><option value="">待確認卡片</option>${cards.map(c=>`<option value="${html(c.id)}" ${candidate.card===c.id?'selected':''}>${html(c.name)}</option>`).join('')}</select>
+    <div class="review-grid review-secondary-grid"><div><label for="review-category">🏷️ 分類</label><select id="review-category">${['生活採買','餐飲','購物','交通','旅遊','醫療','其他'].map(v=>`<option ${v===candidate.category?'selected':''}>${v}</option>`).join('')}</select></div>
+    <div><label>🔎 末四碼</label><input class="review-readonly" readonly value="${html(candidate.last4||'未辨識')}" aria-label="辨識的卡號末四碼"></div></div>
+    <button type="button" class="review-submit" onclick="confirmNotice()">🩷 確認，存入這筆消費</button></div>`;
 }
 function confirmNotice(){
   if(!candidate||candidate.error)return;
